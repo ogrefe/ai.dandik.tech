@@ -181,11 +181,9 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const chatContainer = document.getElementById('chat-container');
 
-        // Backend URL (İsteğine göre api.dandik.tech:3000 veya Localhost)
-        // Eğer yerel ağda test ediyorsan http://localhost:3000/chat kullanmalısın
-        // Ama domain istediğin için buraya onu yazdım.
+        // Backend URL (İsteğine göre güncellendi)
+        // DİKKAT: Eğer Cloudflare Tunnel kullanıyorsan ":3000" portunu kaldırıp "https://api.dandik.tech/chat" yapmalısın.
         const API_URL = "https://api.dandik.tech:3000/chat"; 
-        // Not: Eğer çalışmazsa test için: "http://localhost:3000/chat" yapabilirsin.
 
         input.addEventListener('input', () => {
             sendBtn.disabled = input.value.trim() === '';
@@ -259,7 +257,7 @@
 
             } catch (error) {
                 loadingIndicator.classList.add('hidden');
-                addMessage('bot', `Bağlantı Hatası: ${error.message}. Sunucu açık mı?`);
+                addMessage('bot', `Bağlantı Hatası: ${error.message}. Sunucu (api.dandik.tech) açık mı ve HTTPS destekliyor mu?`);
             }
         });
     </script>
