@@ -9,61 +9,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Highlight.js for Code Styling -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <style>
         body { font-family: 'Space Mono', monospace; background-color: #111827; -webkit-tap-highlight-color: transparent; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Loading Animation */
+        /* Yükleniyor Animasyonu */
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; fill: #FCD34D; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
         
-        /* ChatGPT Style Code Block */
-        .code-container {
-            margin: 1.5rem 0;
-            border-radius: 0.5rem;
-            overflow: hidden;
-            border: 1px solid #374151;
-            background: #0d1117;
+        /* Basit Mesaj Alanı Stilleri */
+        .markdown-content pre { 
+            background: #1f2937; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            overflow-x: auto; 
+            margin: 0.5rem 0; 
+            border: 1px solid #374151; 
         }
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #2d333b;
-            padding: 0.5rem 1rem;
-            color: #adbac7;
-            font-size: 0.75rem;
-            font-family: sans-serif;
-            border-bottom: 1px solid #374151;
-        }
-        .copy-button {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            cursor: pointer;
-            transition: color 0.2s;
-            background: none;
-            border: none;
-            color: #adbac7;
-        }
-        .copy-button:hover { color: #ffffff; }
-        .copy-button.copied { color: #4ade80; }
+        .markdown-content code { color: #FCD34D; font-size: 0.9em; }
 
-        pre { margin: 0 !important; }
-        code.hljs { 
-            padding: 1rem !important; 
-            background: #0d1117 !important; 
-            font-size: 0.85rem !important; 
-            line-height: 1.5;
-        }
-
-        /* Sidebar & Layout */
+        /* Sidebar & Aktif Sohbet */
         .active-chat { 
             border-left: 4px solid #FCD34D !important; 
             background-color: rgba(252, 211, 77, 0.1) !important; 
@@ -80,21 +47,14 @@
             #sidebar { transform: translateX(0) !important; position: relative !important; }
             #sidebar-overlay { display: none !important; }
         }
-
-        .inline-code {
-            background: #2d333b;
-            color: #FCD34D;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.3rem;
-            font-size: 0.9em;
-        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
 <body class="text-gray-100 h-screen flex flex-col overflow-hidden sidebar-closed">
 
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden opacity-0"></div>
 
-    <!-- LOGIN SCREEN -->
+    <!-- GİRİŞ EKRANI -->
     <div id="login-screen" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#111827] p-4 transition-all duration-500">
         <div class="w-full max-w-md bg-gray-900 p-6 md:p-8 rounded-3xl border border-gray-800 shadow-2xl relative overflow-hidden text-center">
             <div class="absolute top-0 left-0 w-full h-1 bg-yellow-500"></div>
@@ -104,7 +64,7 @@
                 <input type="email" id="email" placeholder="E-posta" class="w-full bg-gray-800 border border-gray-700 rounded-2xl px-5 py-4 text-sm outline-none focus:border-yellow-500 transition-all text-white">
                 <input type="password" id="password" placeholder="Şifre" class="w-full bg-gray-800 border border-gray-700 rounded-2xl px-5 py-4 text-sm outline-none focus:border-yellow-500 transition-all text-white">
                 <div class="flex gap-3">
-                    <button id="login-btn" class="flex-1 bg-yellow-500 text-gray-900 font-bold py-4 rounded-2xl hover:bg-yellow-400 transition-all active:scale-95">Giriş</button>
+                    <button id="login-btn" class="flex-1 bg-yellow-500 text-gray-900 font-bold py-4 rounded-2xl hover:bg-yellow-400 transition-all active:scale-95 shadow-lg">Giriş</button>
                     <button id="register-btn" class="flex-1 border border-gray-700 font-bold py-4 rounded-2xl hover:bg-gray-800 text-gray-400">Kayıt</button>
                 </div>
                 <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 bg-white text-gray-900 py-4 rounded-2xl font-bold hover:bg-gray-100 active:scale-95 shadow-lg">
@@ -115,7 +75,7 @@
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- ANA UYGULAMA -->
     <div id="app-interface" class="flex-1 flex overflow-hidden hidden opacity-0 transition-opacity duration-500">
         
         <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 md:w-80 flex flex-col bg-[#0f172a] border-r border-gray-800 h-full z-50">
@@ -130,10 +90,10 @@
                     <div class="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center text-gray-900 font-bold" id="user-initial">?</div>
                     <div class="overflow-hidden">
                         <div id="user-display" class="text-[11px] font-bold truncate text-gray-200">...</div>
-                        <div class="text-[9px] text-green-500 font-bold uppercase">Korunuyor</div>
+                        <div class="text-[9px] text-green-500 font-bold uppercase">Hesabın Korunuyor</div>
                     </div>
                 </div>
-                <button id="logout-btn" class="p-3 text-gray-500 hover:text-red-400"><i class="fas fa-power-off"></i></button>
+                <button id="logout-btn" class="p-3 text-gray-500 hover:text-red-400 transition-colors"><i class="fas fa-power-off"></i></button>
             </div>
         </aside>
 
@@ -148,7 +108,7 @@
                         <div id="status-dot" class="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
                         <span id="status-text">Bağlanıyor...</span>
                     </div>
-                    <span class="hidden sm:inline-block text-[9px] text-gray-600 font-mono px-2 py-1 bg-gray-800 rounded-md">v0.0.2</span>
+                    <span class="hidden sm:inline-block text-[9px] text-gray-600 font-mono px-2 py-1 bg-gray-800 rounded-md border border-gray-700">v0.0.2</span>
                 </div>
             </header>
 
@@ -172,11 +132,11 @@
                 </div>
             </div>
 
-            <div class="absolute bottom-0 w-full bg-gradient-to-t from-[#111827] via-[#111827] to-transparent pt-10 pb-6 px-4 md:px-6 z-30">
+            <div class="absolute bottom-0 w-full bg-gradient-to-t from-[#111827] via-[#111827] to-transparent pt-10 pb-6 px-4 md:px-6 z-30 pb-safe">
                 <div class="w-full max-w-3xl mx-auto relative group">
                     <div class="relative flex items-end w-full p-3 md:p-4 bg-[#1f2937] rounded-[24px] border border-gray-700 shadow-2xl focus-within:border-yellow-500/50 transition-all duration-300">
                         <textarea id="prompt-input" rows="1" placeholder="Mesaj girin..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-48 py-1 md:py-2 pr-12 scrollbar-hide text-[15px] leading-relaxed"></textarea>
-                        <button id="send-btn" class="absolute right-3 bottom-3 md:right-4 md:bottom-4 p-2.5 md:p-3 rounded-2xl bg-yellow-500 text-gray-900 disabled:opacity-30 transition-all hover:scale-105 active:scale-90" disabled>
+                        <button id="send-btn" class="absolute right-3 bottom-3 md:right-4 md:bottom-4 p-2.5 md:p-3 rounded-2xl bg-yellow-500 text-gray-900 disabled:opacity-30 transition-all hover:scale-105 active:scale-90 shadow-lg" disabled>
                             <i class="fas fa-paper-plane text-sm md:text-base"></i>
                         </button>
                     </div>
@@ -185,7 +145,7 @@
         </main>
     </div>
 
-    <!-- Firebase SDKs (Compat - Global) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -200,7 +160,6 @@
             appId: "1:858020141627:web:e770d0675a22c823d15a1e"
         };
 
-        // Firebase Init
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -235,70 +194,7 @@
             overlay: document.getElementById('sidebar-overlay')
         };
 
-        // --- CODE FORMATTER & CLEANER ---
-        function escapeHTML(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        window.copyCode = function(btn, codeId) {
-            const code = document.getElementById(codeId).innerText;
-            const el = document.createElement('textarea');
-            el.value = code;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            const icon = btn.querySelector('i');
-            const text = btn.querySelector('span');
-            btn.classList.add('copied');
-            icon.classList.replace('fa-copy', 'fa-check');
-            text.innerText = "Kopyalandı!";
-            
-            setTimeout(() => {
-                btn.classList.remove('copied');
-                icon.classList.replace('fa-check', 'fa-copy');
-                text.innerText = "Kopyala";
-            }, 2000);
-        };
-
-        function parseMarkdown(text) {
-            if (!text) return "";
-            
-            // Code Blocks (Triple Backtick)
-            const codeBlockRegex = /```(\w*)\s*\n?([\s\S]*?)```/g;
-            let formatted = text;
-            
-            formatted = formatted.replace(codeBlockRegex, (match, lang, code) => {
-                const id = 'code-' + Math.random().toString(36).substr(2, 9);
-                let cleanCode = code.trim();
-                
-                // Agresif ChatGPT Kalıntısı Temizleme (html Copy code vb.)
-                const unwantedHeaderRegex = /^(?:[a-zA-Z+]+\s+)?Copy code\s*(\n|$)/i;
-                cleanCode = cleanCode.replace(unwantedHeaderRegex, "");
-
-                return `
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span>${lang || 'plaintext'}</span>
-                            <button onclick="window.copyCode(this, '${id}')" class="copy-button">
-                                <i class="far fa-copy"></i> <span>Kopyala</span>
-                            </button>
-                        </div>
-                        <pre><code id="${id}" class="hljs language-${lang || 'plaintext'}">${escapeHTML(cleanCode)}</code></pre>
-                    </div>
-                `;
-            });
-
-            // Inline Code (Single Backtick)
-            formatted = formatted.replace(/`([^`]+)`/g, '<span class="inline-code">$1</span>');
-            
-            return formatted;
-        }
-
-        // --- UI & AUTH ---
+        // --- MOBİL MENÜ ---
         function toggleSidebar(open) {
             if (open) {
                 document.body.classList.replace('sidebar-closed', 'sidebar-open');
@@ -313,6 +209,7 @@
         ui.hamburger.onclick = () => toggleSidebar(true);
         ui.overlay.onclick = () => toggleSidebar(false);
 
+        // --- SUNUCU DURUMU ---
         async function checkBackend() {
             try {
                 await fetch(HEARTBEAT_URL, { mode: 'no-cors' });
@@ -330,6 +227,7 @@
         setInterval(checkBackend, 15000);
         checkBackend();
 
+        // --- AUTH ---
         document.getElementById('register-btn').onclick = () => {
             auth.createUserWithEmailAndPassword(ui.email.value, ui.pass.value).catch(e => {
                 ui.error.innerText = e.message; ui.error.classList.remove('hidden');
@@ -362,6 +260,7 @@
             }
         });
 
+        // --- GEÇMİŞ VE SENKRONİZASYON ---
         function startHistory(userId) {
             if (historyUnsub) historyUnsub();
             historyUnsub = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats')
@@ -374,7 +273,7 @@
                         if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
 
                         const btn = document.createElement('button');
-                        btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all mb-2 flex items-center gap-3 ${isActive ? 'active-chat shadow-xl' : 'text-gray-500 hover:bg-gray-800'}`;
+                        btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all mb-2 flex items-center gap-3 ${isActive ? 'active-chat shadow-xl' : 'text-gray-400 hover:bg-gray-800'}`;
                         btn.innerHTML = `<i class="fas fa-message opacity-30"></i> ${data.title || 'Yeni Sohbet'}`;
                         btn.onclick = () => { loadChat(doc.id, data.chatUrl); toggleSidebar(false); };
                         ui.history.appendChild(btn);
@@ -382,11 +281,10 @@
                 });
         }
 
-        async function loadChat(id, url) {
-            if (currentChatId === id) return;
-            currentChatId = id; activeChatUrl = url;
+        async function loadChat(chatId, chatUrl) {
+            currentChatId = chatId; activeChatUrl = chatUrl;
             ui.messages.innerHTML = ''; ui.welcome.classList.add('hidden'); ui.messages.classList.remove('hidden');
-            const msgs = await db.collection('artifacts').doc(appId).collection('users').doc(auth.currentUser.uid).collection('chats').doc(id).collection('messages').orderBy('timestamp', 'asc').get();
+            const msgs = await db.collection('artifacts').doc(appId).collection('users').doc(auth.currentUser.uid).collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'asc').get();
             msgs.forEach(m => addMessage(m.data().role, m.data().text, false));
         }
 
@@ -397,25 +295,21 @@
         }
         document.getElementById('new-chat-btn').onclick = () => { startNewChat(); toggleSidebar(false); };
 
-        // --- CORE CHAT ---
+        // --- MESAJLAŞMA ---
         function addMessage(role, text, anim = true) {
             ui.welcome.classList.add('hidden'); ui.messages.classList.remove('hidden');
             const isUser = role === 'user';
             const div = document.createElement('div');
             div.className = `w-full py-8 ${isUser ? '' : 'bg-[#1f2937]/40 border-y border-gray-800/50'}`;
-            const avatar = isUser ? `<div class="w-9 h-9 rounded-xl bg-yellow-500 flex items-center justify-center text-gray-900 font-bold">S</div>` : `<div class="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20"><i class="fas fa-robot text-sm"></i></div>`;
+            const avatar = isUser ? `<div class="w-9 h-9 rounded-xl bg-yellow-500 flex items-center justify-center text-gray-900 font-bold shadow-lg">S</div>` : `<div class="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20 shadow-lg"><i class="fas fa-robot text-sm"></i></div>`;
             
             div.innerHTML = `
                 <div class="max-w-3xl mx-auto flex gap-5 px-5 md:px-6">
                     <div class="shrink-0 pt-1">${avatar}</div>
-                    <div class="markdown-content prose prose-invert text-[14px] md:text-base flex-1 whitespace-pre-wrap leading-relaxed">${parseMarkdown(text)}</div>
+                    <div class="markdown-content prose prose-invert text-[14px] md:text-base flex-1 whitespace-pre-wrap leading-relaxed">${text}</div>
                 </div>
             `;
             ui.messages.appendChild(div);
-            
-            // Highlight codes
-            div.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
-
             if (anim) ui.container.scrollTo({ top: ui.container.scrollHeight, behavior: 'smooth' });
             return div.querySelector('.markdown-content');
         }
@@ -434,7 +328,7 @@
             await saveToDB(chatId, 'user', msg);
 
             ui.loader.classList.remove('hidden');
-            ui.queue.innerText = "Sıraya bağlanılıyor...";
+            ui.queue.innerText = "Sıraya giriliyor...";
 
             try {
                 const response = await fetch(API_URL, {
@@ -478,21 +372,16 @@
                             }
                         }
                         
-                        // Stream sırasında düz metin (bittiğinde parse edilecek)
                         botDiv.innerText = display;
                         ui.container.scrollTo({ top: ui.container.scrollHeight });
                     }
                 }
                 
-                if (botDiv) {
-                    const finalTxt = fullRes.replace(/\[URL:.*?\]/, '');
-                    botDiv.innerHTML = parseMarkdown(finalTxt);
-                    botDiv.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
-                    await saveToDB(chatId, 'bot', finalTxt);
-                }
+                const finalTxt = fullRes.replace(/\[URL:.*?\]/, '');
+                if (finalTxt) await saveToDB(chatId, 'bot', finalTxt);
 
             } catch (err) { 
-                addMessage('bot', "Hata: Bağlantı koptu."); 
+                addMessage('bot', "Sunucu Hatası: Bağlantı koptu."); 
             } finally { 
                 ui.loader.classList.add('hidden'); 
                 ui.send.disabled = false; 
