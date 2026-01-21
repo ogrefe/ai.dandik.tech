@@ -36,6 +36,7 @@
             background: transparent !important;
             padding: 1.25rem !important;
             display: block;
+            line-height: 1.5;
         }
         
         .copy-btn {
@@ -258,9 +259,9 @@
             formatted = formatted.replace(codeBlockRegex, (match, lang, code) => {
                 const id = 'code-' + Math.random().toString(36).substr(2, 9);
                 
-                // ChatGPT'den gelen "Copy code" yazılarını temizle
+                // ChatGPT'den gelen "Copy code", "html Copy code" vb. kalıntılarını AGRESİF temizle
                 let cleanCode = code.trim();
-                const unwantedHeader = new RegExp(`^(${lang}\\s+)?Copy code\\n?`, 'i');
+                const unwantedHeader = new RegExp(`^(?:[\\w+]+\\s+)?Copy code\\s*\\n?`, 'i');
                 cleanCode = cleanCode.replace(unwantedHeader, '');
 
                 return `
@@ -276,7 +277,7 @@
                 `;
             });
 
-            // Satır içindeki tekli backtickleri de basitçe wrap edelim
+            // Satır içindeki tekli backtickleri de wrap et
             formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-500 px-1 rounded">$1</code>');
             
             return formatted;
