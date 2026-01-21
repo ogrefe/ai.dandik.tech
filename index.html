@@ -1,265 +1,174 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DandikGPT | Ucuz Yapay Zeka</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Space Mono', monospace; background-color: #111827; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Dandik Glitch Efekti */
-        .glitch-text { position: relative; }
-        .glitch-text::before, .glitch-text::after {
-            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        }
-        .glitch-text::before { left: 2px; text-shadow: -1px 0 #EF4444; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim-2 3s infinite linear alternate-reverse; }
-        .glitch-text::after { left: -2px; text-shadow: -1px 0 #3B82F6; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim 2.5s infinite linear alternate-reverse; }
-        @keyframes glitch-anim {
-            0% { clip: rect(11px, 9999px, 81px, 0); }
-            100% { clip: rect(5px, 9999px, 95px, 0); }
-        }
-        @keyframes glitch-anim-2 {
-            0% { clip: rect(65px, 9999px, 100px, 0); }
-            100% { clip: rect(76px, 9999px, 28px, 0); }
-        }
+console.log("⚙️ Cloudflare Origin CA (Gerçek SSL) Sunucusu Başlatılıyor..."); 
 
-        /* Loading Noktaları */
-        .typing-dot {
-            animation: typing 1.4s infinite ease-in-out both;
-            fill: #FCD34D;
-        }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        
-        .markdown-content pre { background: #1f2937; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; border: 1px solid #374151; }
-        .markdown-content code { font-family: 'Space Mono', monospace; color: #FCD34D; }
-    </style>
-</head>
-<body class="text-gray-100 h-screen flex overflow-hidden">
+const express = require('express');
+const https = require('https');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const bodyParser = require('body-parser');
+const path = require('path');
+const cors = require('cors');
+const fs = require('fs'); 
 
-    <!-- Sol Menü (Sidebar) - Mobilde Gizli -->
-    <aside class="hidden md:flex w-64 flex-col bg-gray-900 border-r border-gray-800">
-        <div class="p-4">
-            <button onclick="window.location.reload()" class="flex items-center gap-3 w-full px-4 py-3 rounded border border-gray-700 hover:bg-gray-800 transition-colors text-sm text-yellow-500 hover:border-yellow-500">
-                <i class="fas fa-plus"></i>
-                <span>Yeni Dandik Sohbet</span>
-            </button>
-        </div>
+puppeteer.use(StealthPlugin());
 
-        <div class="flex-1 overflow-y-auto px-2 space-y-2 scrollbar-hide">
-            <div class="px-2 py-1 text-xs font-bold text-gray-500 mt-4">BUGÜN</div>
-            <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-800 text-sm truncate text-gray-400">
-                <i class="far fa-comment-alt mr-2"></i> Neden çalışmıyorsun?
-            </button>
-            <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-800 text-sm truncate text-gray-400">
-                <i class="far fa-comment-alt mr-2"></i> Hayatın anlamı ne
-            </button>
-            
-            <div class="px-2 py-1 text-xs font-bold text-gray-500 mt-4">GEÇEN AY (YALAN)</div>
-            <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-800 text-sm truncate text-gray-400 opacity-50 cursor-not-allowed" title="Bu özellik bozuk">
-                <i class="far fa-comment-alt mr-2"></i> CSS ortalama taktikleri
-            </button>
-        </div>
+const app = express();
 
-        <div class="p-4 border-t border-gray-800">
-            <div class="flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-800 cursor-pointer">
-                <div class="w-8 h-8 rounded bg-yellow-500 flex items-center justify-center text-black font-bold">D</div>
-                <div class="text-sm font-bold">Dandik Kullanıcı</div>
-            </div>
-        </div>
-    </aside>
+// --- SERTİFİKA YÜKLEME ---
+// Cloudflare panelinden aldığın dosyalar burada okunur.
+let pems = {};
+try {
+    pems.private = fs.readFileSync('origin_key.pem', 'utf8');
+    pems.cert = fs.readFileSync('origin_cert.pem', 'utf8');
+    console.log("✅ Sertifikalar Başarıyla Okundu!");
+} catch (e) {
+    console.log("❌ KRİTİK HATA: Sertifika dosyaları bulunamadı!");
+    console.log("👉 Lütfen 'origin_key.pem' ve 'origin_cert.pem' dosyalarının bu klasörde olduğundan emin ol.");
+    process.exit(1);
+}
 
-    <!-- Ana Chat Alanı -->
-    <main class="flex-1 flex flex-col relative bg-[#111827]">
-        
-        <!-- Mobil Header -->
-        <header class="md:hidden flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900">
-            <button class="text-gray-400"><i class="fas fa-bars"></i></button>
-            <span class="font-bold text-yellow-500 glitch-text" data-text="DandikGPT">DandikGPT</span>
-            <button onclick="window.location.reload()" class="text-gray-400"><i class="fas fa-plus"></i></button>
-        </header>
+app.set('trust proxy', true);
 
-        <!-- Model Seçici (Süs) -->
-        <div class="hidden md:flex items-center justify-between px-6 py-4 absolute top-0 w-full z-10 bg-[#111827]/90 backdrop-blur-sm">
-            <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 cursor-pointer transition-colors">
-                <span class="text-sm font-bold text-gray-200">DandikGPT 3.5</span>
-                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
-            </div>
-            <div class="text-xs text-gray-500 font-mono">v0.0.1 (Alpha-Beta-Gamma)</div>
-        </div>
+// --- DETAYLI LOGLAMA ---
+app.use((req, res, next) => {
+    console.log(`\n🔔 [${new Date().toLocaleTimeString()}] İSTEK GELDİ`);
+    const origin = req.headers.origin || 'Belirsiz';
+    console.log(`   📍 Kaynak: ${origin}`);
+    console.log(`   📨 URL: ${req.method} ${req.url}`);
+    next();
+});
 
-        <!-- Mesajlar Alanı -->
-        <div id="chat-container" class="flex-1 overflow-y-auto pt-20 pb-40 px-4 md:px-0 scrollbar-hide scroll-smooth">
-            
-            <!-- Karşılama Ekranı -->
-            <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center px-4">
-                <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-6 relative">
-                    <div class="absolute inset-0 bg-yellow-500 rounded-full blur opacity-20 animate-pulse"></div>
-                    <i class="fas fa-robot text-3xl text-yellow-500"></i>
-                </div>
-                <h1 class="text-2xl font-bold mb-8">Nasıl yardımcı olmamı beklersin?</h1>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-                    <button onclick="setPrompt('Bana hayatın anlamını tek kelimeyle anlat')" class="p-4 rounded-lg border border-gray-700 hover:bg-gray-800 text-left transition-colors text-sm text-gray-300">
-                        "Bana hayatın anlamını tek kelimeyle anlat"
-                    </button>
-                    <button onclick="setPrompt('Neden bu kadar yavaş çalışıyorsun?')" class="p-4 rounded-lg border border-gray-700 hover:bg-gray-800 text-left transition-colors text-sm text-gray-300">
-                        "Neden bu kadar yavaş çalışıyorsun?"
-                    </button>
-                    <button onclick="setPrompt('Dandik bir şiir yaz')" class="p-4 rounded-lg border border-gray-700 hover:bg-gray-800 text-left transition-colors text-sm text-gray-300">
-                        "Dandik bir şiir yaz"
-                    </button>
-                    <button onclick="setPrompt('Windows mu Linux mu?')" class="p-4 rounded-lg border border-gray-700 hover:bg-gray-800 text-left transition-colors text-sm text-gray-300">
-                        "Windows mu Linux mu?"
-                    </button>
-                </div>
-            </div>
+// --- CORS AYARLARI ---
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && origin !== 'null') {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Credentials', 'true');
+    } else {
+        res.header('Access-Control-Allow-Origin', '*');
+    }
+    
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
+    next();
+});
 
-            <!-- Mesajlar buraya JS ile eklenecek -->
-            <div id="messages-wrapper" class="w-full max-w-3xl mx-auto space-y-6 hidden">
-                <!-- Örnek Bot Mesajı Yapısı (JS ile üretilecek) -->
-            </div>
+app.use(bodyParser.json());
 
-            <!-- Loading Spinner -->
-            <div id="loading-indicator" class="hidden w-full max-w-3xl mx-auto mt-4 px-4">
-                <div class="flex gap-4">
-                    <div class="w-8 h-8 rounded-sm bg-green-500/10 flex-shrink-0 flex items-center justify-center text-green-500">
-                        <i class="fas fa-robot text-xs"></i>
-                    </div>
-                    <div class="flex items-center h-8">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24">
-                            <circle class="typing-dot" cx="4" cy="12" r="2" />
-                            <circle class="typing-dot" cx="12" cy="12" r="2" />
-                            <circle class="typing-dot" cx="20" cy="12" r="2" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+app.get('/', (req, res) => res.send("<h1>🚀 Dandik API v2.0 (HTTPS) Çalışıyor!</h1>"));
 
-        </div>
+let browser;
+let page;
 
-        <!-- Input Alanı -->
-        <div class="absolute bottom-0 w-full bg-gradient-to-t from-[#111827] via-[#111827] to-transparent pt-10 pb-6 px-4">
-            <div class="w-full max-w-3xl mx-auto relative">
-                <form id="chat-form" class="relative flex items-end w-full p-3 bg-[#40414F] rounded-xl border border-gray-600 shadow-xl focus-within:border-yellow-500/50 transition-colors">
-                    <textarea 
-                        id="prompt-input" 
-                        rows="1" 
-                        placeholder="Dandik bir şeyler sor..." 
-                        class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-48 py-2 pr-10 scrollbar-hide font-mono text-sm md:text-base placeholder-gray-400"
-                        oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
-                        onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.form.dispatchEvent(new Event('submit')); }"
-                    ></textarea>
-                    <button 
-                        type="submit" 
-                        id="send-btn"
-                        class="absolute right-3 bottom-3 p-1.5 rounded-md bg-yellow-500 text-gray-900 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        disabled
-                    >
-                        <i class="fas fa-paper-plane text-sm"></i>
-                    </button>
-                </form>
-                <div class="text-center mt-2">
-                    <p class="text-[10px] text-gray-500">DandikGPT hata yapabilir. Cevapları ciddiye almayın, gülüp geçin.</p>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        const form = document.getElementById('chat-form');
-        const input = document.getElementById('prompt-input');
-        const sendBtn = document.getElementById('send-btn');
-        const messagesWrapper = document.getElementById('messages-wrapper');
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const chatContainer = document.getElementById('chat-container');
-
-        // Backend URL (İsteğine göre güncellendi)
-        // DİKKAT: Eğer Cloudflare Tunnel kullanıyorsan ":3000" portunu kaldırıp "https://api.dandik.tech/chat" yapmalısın.
-        const API_URL = "https://api.dandik.tech:8443/chat"; 
-
-        input.addEventListener('input', () => {
-            sendBtn.disabled = input.value.trim() === '';
+async function initBrowser() {
+    console.log("🦊 Firefox Başlatılıyor...");
+    try {
+        browser = await puppeteer.launch({ 
+            product: 'firefox', 
+            headless: false, // İlk girişte false kalsın
+            ignoreHTTPSErrors: true, 
+            userDataDir: path.join(__dirname, 'user_data_firefox_https'), 
+            defaultViewport: null,
+            timeout: 60000, 
+            dumpio: false, 
+            args: ['--start-maximized', '--no-remote', '--wait-for-browser']
         });
+        page = await browser.newPage();
+        console.log("🌐 ChatGPT'ye gidiliyor...");
+        await page.goto('https://chatgpt.com', { waitUntil: 'domcontentloaded', timeout: 90000 });
+        console.log("✅ Firefox Hazır! (Lütfen giriş yap)");
+    } catch (e) {
+        console.log("❌ Tarayıcı Başlatma Hatası:", e.message);
+    }
+}
 
-        function setPrompt(text) {
-            input.value = text;
-            input.focus();
-            sendBtn.disabled = false;
+app.post('/chat', async (req, res) => {
+    const userMessage = req.body.message;
+    console.log(`📩 MESAJ: "${userMessage}"`);
+
+    if (!page) return res.status(500).json({ reply: "Sunucu (Tarayıcı) henüz hazır değil." });
+
+    try {
+        const textareaSelector = '#prompt-textarea';
+        const sendButtonSelector = 'button[data-testid="send-button"]'; 
+
+        // 1. Sayfa veya Input Hazır mı?
+        try {
+            await page.waitForSelector(textareaSelector, { timeout: 5000 });
+        } catch (e) {
+            console.log("⚠️ Input bulunamadı, sayfa yenileniyor...");
+            await page.reload({ waitUntil: 'domcontentloaded' });
+            await page.waitForSelector(textareaSelector, { timeout: 10000 });
         }
 
-        function scrollToBottom() {
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-        }
-
-        function addMessage(role, text) {
-            welcomeScreen.classList.add('hidden');
-            messagesWrapper.classList.remove('hidden');
-
-            const isUser = role === 'user';
-            const avatar = isUser 
-                ? '<div class="w-8 h-8 rounded-sm bg-purple-500 flex-shrink-0 flex items-center justify-center text-white font-bold">S</div>'
-                : '<div class="w-8 h-8 rounded-sm bg-green-500 flex-shrink-0 flex items-center justify-center text-white"><i class="fas fa-robot text-xs"></i></div>';
-
-            const bgClass = isUser ? '' : 'bg-[#444654]/30'; 
-            
-            const html = `
-                <div class="w-full border-b border-black/10 dark:border-gray-900/50 text-gray-800 dark:text-gray-100 group ${bgClass}">
-                    <div class="text-base gap-4 md:gap-6 md:max-w-2xl lg:max-w-[38rem] xl:max-w-3xl p-4 md:py-6 flex lg:px-0 m-auto">
-                        ${avatar}
-                        <div class="relative flex-1 overflow-hidden">
-                            <div class="markdown-content prose prose-invert whitespace-pre-wrap leading-7">${text}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            messagesWrapper.insertAdjacentHTML('beforeend', html);
-            scrollToBottom();
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const message = input.value.trim();
-            if (!message) return;
-
-            input.value = '';
-            input.style.height = 'auto';
-            sendBtn.disabled = true;
-            addMessage('user', message);
-            
-            loadingIndicator.classList.remove('hidden');
-            scrollToBottom();
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
-                });
-
-                const data = await response.json();
-                
-                loadingIndicator.classList.add('hidden');
-
-                if (data.reply) {
-                    addMessage('bot', data.reply);
-                } else {
-                    addMessage('bot', "Sunucu cevap veremedi. Dandik işte.");
-                }
-
-            } catch (error) {
-                loadingIndicator.classList.add('hidden');
-                addMessage('bot', `Bağlantı Hatası: ${error.message}. Sunucu (api.dandik.tech) açık mı ve HTTPS destekliyor mu?`);
+        // 2. Input Temizleme (React Uyumlu)
+        // Önceki mesajın kalıntılarını temizler
+        await page.evaluate((selector) => {
+            const input = document.querySelector(selector);
+            if (input) {
+                input.focus();
+                input.value = '';
+                // React state'ini güncellemek için olay tetikle
+                input.dispatchEvent(new Event('input', { bubbles: true }));
             }
+        }, textareaSelector);
+
+        // 3. Mesajı Yaz
+        await page.type(textareaSelector, userMessage, { delay: 10 });
+        
+        await new Promise(r => setTimeout(r, 500)); 
+
+        // 4. Gönderme İşlemi (Buton veya Enter)
+        const btnClicked = await page.evaluate((btnSel) => {
+            const btn = document.querySelector(btnSel);
+            if (btn && !btn.disabled) {
+                btn.click();
+                return true;
+            }
+            return false;
+        }, sendButtonSelector);
+
+        if (!btnClicked) {
+            console.log("   👉 Buton bulunamadı, Enter tuşuna basılıyor...");
+            await page.keyboard.press('Enter');
+        } else {
+            console.log("   👉 Gönder butonuna tıklandı.");
+        }
+
+        console.log("⏳ Cevap bekleniyor...");
+        // Cevap için bekleme süresi (15 saniye)
+        await new Promise(r => setTimeout(r, 15000)); 
+
+        // 5. Cevabı Al
+        const response = await page.evaluate(() => {
+            const elements = document.querySelectorAll('.markdown');
+            if (elements.length > 0) {
+                return elements[elements.length - 1].innerText;
+            }
+            return null; 
         });
-    </script>
-</body>
-</html>
+
+        if (response) {
+            console.log(`📤 CEVAP (${response.length} karakter): Başarılı.`);
+            res.json({ reply: response });
+        } else {
+            console.log("⚠️ UYARI: Cevap alınamadı (Boş veya süre yetmedi).");
+            res.json({ reply: "ChatGPT cevap vermedi veya süre yetmedi. Tekrar dener misin?" });
+        }
+
+    } catch (error) {
+        console.error("❌ İşlem Hatası:", error.message);
+        // Kritik hata durumunda sayfayı yenile ki sonraki istekler çalışsın
+        try { await page.reload({ waitUntil: 'domcontentloaded' }); } catch(e){}
+        res.status(500).json({ reply: `Hata oluştu, sistemi yeniledim. Lütfen tekrar yaz.` });
+    }
+});
+
+// CLOUDFLARE HTTPS PORTU: 8443
+https.createServer({ key: pems.private, cert: pems.cert }, app).listen(8443, '0.0.0.0', async () => {
+    console.log('------------------------------------------------');
+    console.log(`🔥 GÜVENLİ SUNUCU AÇIK: https://localhost:8443`);
+    console.log('------------------------------------------------');
+    await initBrowser();
+});
