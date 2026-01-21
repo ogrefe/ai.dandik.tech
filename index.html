@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DandikGPT | Cloud History Sync</title>
+    <title>DandikGPT | Dandik</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -77,9 +77,12 @@
                     <button id="open-sidebar-btn" class="md:hidden p-2 text-gray-400 hover:bg-gray-800 rounded-lg"><i class="fas fa-bars"></i></button>
                     <span class="font-bold text-yellow-500 text-lg tracking-tight">DandikGPT</span>
                 </div>
-                <div class="text-[9px] text-green-500 font-bold uppercase tracking-tighter border border-green-500/20 bg-green-500/5 px-3 py-1.5 rounded-full flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                    Sıra Durumu
+                <div class="flex items-center gap-2">
+                    <div id="status-badge" class="text-[9px] text-gray-500 font-bold uppercase tracking-tighter border border-gray-500/20 bg-gray-500/5 px-3 py-1.5 rounded-full flex items-center gap-2">
+                        <div id="status-dot" class="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                        <span id="status-text">Bağlanıyor...</span>
+                    </div>
+                    <span class="text-[9px] text-gray-600 font-bold font-mono px-2 py-1 bg-gray-800 rounded-md border border-gray-700">v0.0.2</span>
                 </div>
             </header>
 
@@ -138,6 +141,8 @@
         const appId = "dandikgpt";
 
         const API_URL = "https://api.dandik.tech:8443/chat";
+        const HEARTBEAT_URL = "https://api.dandik.tech:8443/"; 
+        
         let currentChatId = null;
         let activeChatUrl = null;
         let historyUnsub = null;
@@ -155,8 +160,30 @@
             queue: document.getElementById('queue-text'),
             loader: document.getElementById('loading-indicator'),
             welcome: document.getElementById('welcome-screen'),
-            container: document.getElementById('chat-container')
+            container: document.getElementById('chat-container'),
+            statusText: document.getElementById('status-text'),
+            statusDot: document.getElementById('status-dot'),
+            statusBadge: document.getElementById('status-badge')
         };
+
+        // --- BACKEND DURUM KONTROLÜ ---
+        async function checkBackend() {
+            try {
+                // Sunucunun / rotasına basit bir fetch atıyoruz
+                const res = await fetch(HEARTBEAT_URL, { mode: 'no-cors' });
+                ui.statusText.innerText = "Sunucu Aktif";
+                ui.statusText.className = "text-green-500";
+                ui.statusDot.className = "w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse";
+                ui.statusBadge.className = ui.statusBadge.className.replace('border-gray-500/20', 'border-green-500/20').replace('bg-gray-500/5', 'bg-green-500/5');
+            } catch (e) {
+                ui.statusText.innerText = "Sunucu Çevrimdışı";
+                ui.statusText.className = "text-red-500";
+                ui.statusDot.className = "w-1.5 h-1.5 bg-red-500 rounded-full";
+                ui.statusBadge.className = ui.statusBadge.className.replace('border-green-500/20', 'border-red-500/20').replace('bg-green-500/5', 'bg-red-500/5');
+            }
+        }
+        setInterval(checkBackend, 10000); // 10 saniyede bir kontrol et
+        checkBackend();
 
         // --- AUTH ---
         document.getElementById('register-btn').onclick = () => {
@@ -199,11 +226,9 @@
                         const data = doc.data();
                         const isActive = currentChatId === doc.id;
                         
-                        // Sync current URL if updated in cloud
                         if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
 
                         const btn = document.createElement('button');
-                        // active-chat sınıfı ile sarı renk kontrolü
                         btn.className = `w-full text-left px-4 py-3.5 rounded-xl text-xs truncate transition-all mb-2 flex items-center gap-3 ${isActive ? 'active-chat shadow-xl' : 'text-gray-500 hover:bg-gray-800 hover:text-gray-300'}`;
                         btn.innerHTML = `<i class="fas fa-comment-dots opacity-40 text-[10px]"></i> ${data.title || 'Yeni Sohbet'}`;
                         btn.onclick = () => loadChat(doc.id, data.chatUrl);
@@ -223,7 +248,6 @@
             const msgs = await db.collection('artifacts').doc(appId).collection('users').doc(auth.currentUser.uid).collection('chats').doc(id).collection('messages').orderBy('timestamp', 'asc').get();
             msgs.forEach(m => addMessage(m.data().role, m.data().text, false));
             
-            // UI'daki sarı rengi anında güncellemek için listeyi yenile
             startHistory(auth.currentUser.uid);
         }
 
@@ -265,12 +289,11 @@
             const msg = ui.input.value.trim();
             if (!msg) return;
 
-            // BUG FIX: Mevcut durumları sabitle
             const chatId = currentChatId;
             const userId = auth.currentUser.uid;
             const chatUrlAtSend = activeChatUrl;
             
-            ui.input.value = ''; ui.input.style.height = 'auto'; ui.send.disabled = true;
+            ui.input.value = ''; ui.input.style.height = 'auto'; ui.send.disabled = true; // CEVAP GELENE KADAR DEAKTİF
             
             addMessage('user', msg);
             await saveToDB(chatId, 'user', msg);
@@ -296,14 +319,12 @@
                     if (done) break;
                     const chunk = decoder.decode(value, { stream: true });
 
-                    // Kuyruk numarasını yakala
                     if (chunk.includes("[QUEUE_POS:")) {
                         const match = chunk.match(/\[QUEUE_POS:(\d+)\]/);
                         if (match) ui.queue.innerText = `Kuyruktasınız: #${match[1]}`;
                         continue;
                     }
 
-                    // Mesaj başladığında UI güncelle
                     if (!botDiv) {
                         ui.queue.innerText = "Cevap hazırlanıyor...";
                         botDiv = addMessage('bot', '');
@@ -312,12 +333,10 @@
                     fullRes += chunk;
                     let display = fullRes;
                     
-                    // URL meta verisini ayıkla
                     if (fullRes.includes("[URL:")) {
                         const m = fullRes.match(/\[URL:(.*?)\]/);
                         if (m) {
                             activeChatUrl = m[1];
-                            // Cloud mapping güncelle
                             await db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats').doc(chatId).update({ chatUrl: activeChatUrl });
                             display = fullRes.replace(/\[URL:.*?\]/, '');
                         }
@@ -327,7 +346,6 @@
                     ui.container.scrollTo(0, 99999);
                 }
                 
-                // Final temiz halini DB'ye kaydet
                 const finalCleanTxt = fullRes.replace(/\[URL:.*?\]/, '');
                 if (finalCleanTxt) await saveToDB(chatId, 'bot', finalCleanTxt);
 
@@ -335,7 +353,7 @@
                 addMessage('bot', "Sunucu Hatası: Bağlantı kurulamadı."); 
             } finally { 
                 ui.loader.classList.add('hidden'); 
-                ui.send.disabled = false; 
+                ui.send.disabled = false; // CEVAP BİTİNCE AKTİF
                 ui.input.focus();
             }
         }
@@ -354,8 +372,8 @@
             await chatRef.collection('messages').add({ role, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         }
 
-        ui.input.oninput = function() { this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'; ui.send.disabled = !this.value.trim(); };
-        ui.input.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+        ui.input.oninput = function() { this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'; if (!ui.loader.classList.contains('hidden')) ui.send.disabled = true; else ui.send.disabled = !this.value.trim(); };
+        ui.input.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!ui.send.disabled) handleSend(); } };
         ui.send.onclick = handleSend;
         document.getElementById('open-sidebar-btn').onclick = () => document.getElementById('sidebar').classList.toggle('hidden');
     </script>
