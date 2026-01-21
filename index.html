@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DandikGPT | Dandik</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css)" rel="stylesheet">
-    <link href="[https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap)" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Syntax Highlighting (Highlight.js) -->
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css](https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css)">
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js](https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js)"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <style>
         body { font-family: 'Space Mono', monospace; background-color: #111827; -webkit-tap-highlight-color: transparent; }
@@ -28,6 +28,7 @@
             overflow: hidden; 
             margin: 1rem 0; 
             border: 1px solid #334155; 
+            position: relative;
         }
         .markdown-content code { 
             font-family: 'Space Mono', monospace !important; 
@@ -104,7 +105,7 @@
         
         <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 md:w-80 flex flex-col bg-[#0f172a] md:bg-gray-900 border-r border-gray-800 h-full z-50 shadow-2xl md:shadow-none">
             <div class="p-6">
-                <button id="new-chat-btn" class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl border border-gray-700 text-yellow-500 font-bold text-sm hover:bg-gray-800 transition-all shadow-md active:scale-95">
+                <button id="new-chat-btn" class="flex items-center justify-center gap-3 w-full py-4 rounded-xl border border-gray-700 text-yellow-500 font-bold text-sm hover:bg-gray-800 transition-all shadow-md active:scale-95">
                     <i class="fas fa-plus"></i> Yeni Sohbet
                 </button>
             </div>
@@ -121,6 +122,7 @@
             </div>
         </aside>
 
+        <!-- CONTENT -->
         <main class="flex-1 flex flex-col relative bg-[#111827] min-w-0">
             <header class="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900/50 z-30 backdrop-blur-md">
                 <div class="flex items-center gap-4">
@@ -160,6 +162,7 @@
                 </div>
             </div>
 
+            <!-- INPUT PANEL -->
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-[#111827] via-[#111827] to-transparent pt-10 pb-6 px-4 md:px-6 z-30 pb-safe">
                 <div class="w-full max-w-3xl mx-auto relative group">
                     <div class="relative flex items-end w-full p-3 md:p-4 bg-[#1f2937] rounded-[24px] border border-gray-700 shadow-2xl focus-within:border-yellow-500/50 transition-all duration-300">
@@ -174,9 +177,9 @@
     </div>
 
     <!-- Firebase SDKs -->
-    <script src="[https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js)"></script>
-    <script src="[https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js](https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js)"></script>
-    <script src="[https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js](https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js)"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -193,8 +196,8 @@
         const db = firebase.firestore();
         const appId = "dandikgpt";
 
-        const API_URL = "[https://api.dandik.tech:8443/chat](https://api.dandik.tech:8443/chat)";
-        const HEARTBEAT_URL = "[https://api.dandik.tech:8443/](https://api.dandik.tech:8443/)"; 
+        const API_URL = "https://api.dandik.tech:8443/chat";
+        const HEARTBEAT_URL = "https://api.dandik.tech:8443/"; 
         
         let currentChatId = null;
         let activeChatUrl = null;
@@ -224,12 +227,12 @@
 
         // --- HELPER: HTML Escape & Markdown Parser ---
         function escapeHTML(str) {
-            const p = document.createElement('p');
-            p.textContent = str;
-            return p.innerHTML;
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
 
-        function copyToClipboard(elementId, btn) {
+        window.copyToClipboard = function(elementId, btn) {
             const code = document.getElementById(elementId).innerText;
             const textarea = document.createElement('textarea');
             textarea.value = code;
@@ -240,10 +243,10 @@
             
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-check"></i> Kopyalandı!';
-            btn.classList.add('!text-green-500');
+            btn.style.color = '#22c55e';
             setTimeout(() => {
                 btn.innerHTML = originalText;
-                btn.classList.remove('!text-green-500');
+                btn.style.color = '';
             }, 2000);
         }
 
@@ -254,6 +257,12 @@
             
             formatted = formatted.replace(codeBlockRegex, (match, lang, code) => {
                 const id = 'code-' + Math.random().toString(36).substr(2, 9);
+                
+                // ChatGPT'den gelen "Copy code" yazılarını temizle
+                let cleanCode = code.trim();
+                const unwantedHeader = new RegExp(`^(${lang}\\s+)?Copy code\\n?`, 'i');
+                cleanCode = cleanCode.replace(unwantedHeader, '');
+
                 return `
                     <div class="relative group my-4">
                         <div class="flex justify-between items-center bg-[#0f172a] text-gray-500 px-4 py-2 rounded-t-xl text-[10px] font-bold uppercase tracking-widest border border-slate-700 border-b-0">
@@ -262,7 +271,7 @@
                                 <i class="far fa-copy mr-1"></i> Kopyala
                             </button>
                         </div>
-                        <pre class="!m-0 !rounded-t-none"><code id="${id}" class="hljs language-${lang}">${escapeHTML(code.trim())}</code></pre>
+                        <pre class="!m-0 !rounded-t-none"><code id="${id}" class="hljs language-${lang}">${escapeHTML(cleanCode.trim())}</code></pre>
                     </div>
                 `;
             });
@@ -291,19 +300,20 @@
         // --- BACKEND DURUM ---
         async function checkBackend() {
             try {
-                const res = await fetch(HEARTBEAT_URL, { mode: 'no-cors' });
+                await fetch(HEARTBEAT_URL, { mode: 'no-cors' });
                 isBackendOnline = true;
                 ui.statusText.innerText = "Sunucu Aktif";
                 ui.statusText.className = "text-green-500";
                 ui.statusDot.className = "w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse";
-                ui.statusBadge.classList.replace('border-red-500/20', 'border-green-500/20');
-                ui.statusBadge.classList.replace('bg-red-500/5', 'bg-green-500/5');
+                ui.statusBadge.style.borderColor = 'rgba(34, 197, 94, 0.2)';
+                ui.statusBadge.style.backgroundColor = 'rgba(34, 197, 94, 0.05)';
             } catch (e) {
                 isBackendOnline = false;
                 ui.statusText.innerText = "Sunucu Çevrimdışı";
                 ui.statusText.className = "text-red-500";
                 ui.statusDot.className = "w-1.5 h-1.5 bg-red-500 rounded-full";
-                ui.statusBadge.classList.add('border-red-500/20', 'bg-red-500/5');
+                ui.statusBadge.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                ui.statusBadge.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
             }
         }
         setInterval(checkBackend, 15000);
@@ -461,13 +471,11 @@
                             }
                         }
                         
-                        // Akış sırasında düz metin basıyoruz, bittiğinde kod bloklarını render edeceğiz
                         botDiv.innerText = display;
                         ui.container.scrollTo({ top: ui.container.scrollHeight });
                     }
                 }
                 
-                // Cevap tamamen bittiğinde Markdown/Kod Bloğu formatına çevir
                 if (botDiv) {
                     const finalCleanTxt = fullRes.replace(/\[URL:.*?\]/, '');
                     botDiv.innerHTML = formatMessage(finalCleanTxt);
