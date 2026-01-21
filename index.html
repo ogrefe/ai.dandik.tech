@@ -36,22 +36,23 @@
             background: transparent !important;
             padding: 1.25rem !important;
             display: block;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #e2e8f0;
         }
         
         .copy-btn {
             position: absolute;
             top: 0.5rem;
             right: 0.5rem;
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(30, 41, 59, 0.9);
             border: 1px solid #475569;
             color: #94a3b8;
-            padding: 0.25rem 0.6rem;
+            padding: 0.3rem 0.7rem;
             border-radius: 0.5rem;
             font-size: 0.7rem;
             font-weight: bold;
             transition: all 0.2s;
-            z-index: 10;
+            z-index: 20;
         }
         .copy-btn:hover { background: #FCD34D; color: #0f172a; border-color: #FCD34D; }
         .copy-btn:active { transform: scale(0.95); }
@@ -252,33 +253,33 @@
         }
 
         function formatMessage(text) {
-            // Regex: Triple backtick bloklarını yakala
-            const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
+            // Regex: Triple backtick bloklarını daha esnek yakala
+            const codeBlockRegex = /```(\w*)\s*\n?([\s\S]*?)```/g;
             let formatted = text;
             
             formatted = formatted.replace(codeBlockRegex, (match, lang, code) => {
                 const id = 'code-' + Math.random().toString(36).substr(2, 9);
                 
-                // ChatGPT'den gelen "Copy code", "html Copy code" vb. kalıntılarını AGRESİF temizle
+                // ChatGPT'den gelen gereksiz "Copy code" yazılarını agresif temizle
                 let cleanCode = code.trim();
-                const unwantedHeader = new RegExp(`^(?:[\\w+]+\\s+)?Copy code\\s*\\n?`, 'i');
-                cleanCode = cleanCode.replace(unwantedHeader, '');
+                // Baştaki "Copy code", "html Copy code", "javascript Copy code" vb. yakala ve sil
+                cleanCode = cleanCode.replace(/^(?:[a-zA-Z+]+\s+)?Copy code\s*(\n|$)/i, "");
 
                 return `
                     <div class="relative group my-4">
-                        <div class="flex justify-between items-center bg-[#0f172a] text-gray-500 px-4 py-2 rounded-t-xl text-[10px] font-bold uppercase tracking-widest border border-slate-700 border-b-0">
+                        <div class="flex justify-between items-center bg-[#0f172a] text-gray-400 px-4 py-2 rounded-t-xl text-[10px] font-bold uppercase tracking-widest border border-slate-700 border-b-0">
                             <span>${lang || 'Kod'}</span>
-                            <button onclick="copyToClipboard('${id}', this)" class="copy-btn">
+                            <button onclick="window.copyToClipboard('${id}', this)" class="copy-btn">
                                 <i class="far fa-copy mr-1"></i> Kopyala
                             </button>
                         </div>
-                        <pre class="!m-0 !rounded-t-none"><code id="${id}" class="hljs language-${lang}">${escapeHTML(cleanCode.trim())}</code></pre>
+                        <pre class="!m-0 !rounded-t-none border border-slate-700"><code id="${id}" class="hljs language-${lang || 'plaintext'}">${escapeHTML(cleanCode.trim())}</code></pre>
                     </div>
                 `;
             });
 
             // Satır içindeki tekli backtickleri de wrap et
-            formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-500 px-1 rounded">$1</code>');
+            formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-500 px-1.5 py-0.5 rounded font-bold mx-0.5">$1</code>');
             
             return formatted;
         }
