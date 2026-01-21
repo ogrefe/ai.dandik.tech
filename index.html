@@ -2,383 +2,296 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DandikGPT | Giriş Yap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DandikGPT | Cloud History Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Space Mono', monospace; background-color: #111827; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; fill: #FCD34D; }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        .markdown-content pre { background: #1f2937; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 0.5rem 0; border: 1px solid #374151; }
-        .markdown-content code { font-family: 'Space Mono', monospace; color: #FCD34D; }
-        .markdown-content p { margin-bottom: 0.5rem; }
+        .markdown-content pre { background: #1f2937; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; border: 1px solid #374151; }
+        
+        /* AKTİF SOHBET SARI RENK */
+        .active-chat { 
+            border-left: 4px solid #FCD34D !important; 
+            background-color: #1f2937 !important; 
+            color: #FCD34D !important; 
+            font-weight: bold;
+        }
+        .active-chat i { color: #FCD34D !important; opacity: 1 !important; }
     </style>
 </head>
 <body class="text-gray-100 h-screen flex flex-col overflow-hidden">
 
-    <!-- 1. GİRİŞ EKRANI -->
-    <div id="login-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#111827] p-4 transition-opacity duration-500">
-        <div class="mb-8 relative">
-            <div class="absolute inset-0 bg-yellow-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
-            <i class="fas fa-robot text-6xl text-yellow-500 mb-4"></i>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#111827] p-4">
+        <div class="w-full max-w-md bg-gray-900 p-8 rounded-3xl border border-gray-800 shadow-2xl relative overflow-hidden text-center">
+            <div class="absolute top-0 left-0 w-full h-1 bg-yellow-500"></div>
+            <i class="fas fa-lock text-4xl text-yellow-500 mb-4"></i>
+            <h1 class="text-3xl font-bold mb-8">DandikGPT Giriş</h1>
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="E-posta" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-yellow-500">
+                <input type="password" id="password" placeholder="Şifre" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-yellow-500">
+                <div class="flex gap-2">
+                    <button id="login-btn" class="flex-1 bg-yellow-500 text-gray-900 font-bold py-3 rounded-xl hover:bg-yellow-400">Giriş</button>
+                    <button id="register-btn" class="flex-1 border border-gray-700 font-bold py-3 rounded-xl hover:bg-gray-800">Kayıt</button>
+                </div>
+                <div class="py-2 text-xs text-gray-600 uppercase">veya</div>
+                <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 bg-white text-gray-900 py-3 rounded-xl font-bold hover:bg-gray-100">
+                    <i class="fab fa-google text-red-500"></i> Google ile Devam Et
+                </button>
+            </div>
+            <p id="login-error" class="hidden text-red-500 text-[10px] mt-4 font-bold font-mono"></p>
         </div>
-        <h1 class="text-4xl font-bold text-white mb-2 tracking-tighter">DandikGPT</h1>
-        <p class="text-gray-400 mb-8 text-center max-w-sm">Geçmişini hatırlar ama geleceği garanti edemez.</p>
-        
-        <button id="google-login-btn" class="flex items-center gap-3 bg-white text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-200 transition-all transform hover:scale-105">
-            <i class="fab fa-google text-red-500"></i>
-            Google ile Giriş Yap
-        </button>
-        <p id="login-error" class="text-red-500 text-xs mt-4 hidden">Hata oluştu.</p>
     </div>
 
-    <!-- 2. UYGULAMA ARAYÜZÜ -->
+    <!-- APP INTERFACE -->
     <div id="app-interface" class="flex-1 flex overflow-hidden hidden opacity-0 transition-opacity duration-500">
-        
-        <!-- Sidebar -->
-        <aside id="sidebar" class="hidden md:flex w-64 flex-col bg-gray-900 border-r border-gray-800 transition-all duration-300 z-20 absolute md:relative h-full">
-            <div class="p-4 flex justify-between items-center">
-                <button id="new-chat-btn" class="flex items-center gap-2 flex-1 px-4 py-3 rounded border border-gray-700 hover:bg-gray-800 transition-colors text-sm text-yellow-500 hover:border-yellow-500">
-                    <i class="fas fa-plus"></i> <span>Yeni Sohbet</span>
+        <aside id="sidebar" class="hidden md:flex w-72 flex-col bg-gray-900 border-r border-gray-800 h-full">
+            <div class="p-6">
+                <button id="new-chat-btn" class="flex items-center justify-center gap-3 w-full py-4 rounded-xl border border-gray-700 text-yellow-500 font-bold text-sm hover:bg-gray-800 transition-all">
+                    <i class="fas fa-plus"></i> Yeni Sohbet
                 </button>
-                <button id="close-sidebar-btn" class="md:hidden text-gray-400 px-2"><i class="fas fa-times"></i></button>
             </div>
-
-            <div class="flex-1 overflow-y-auto px-2 space-y-2 scrollbar-hide" id="history-list">
-                <div class="px-2 py-1 text-xs font-bold text-gray-500 mt-4">GEÇMİŞ</div>
-                <!-- Geçmiş buraya JS ile dolacak -->
-                <div class="text-center text-xs text-gray-600 mt-4">Yükleniyor...</div>
-            </div>
-
-            <div class="p-4 border-t border-gray-800">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <img id="user-avatar" src="" alt="User" class="w-8 h-8 rounded-full border border-gray-600 shrink-0">
-                        <div class="overflow-hidden">
-                            <div id="user-name" class="text-sm font-bold truncate text-white">...</div>
-                        </div>
-                    </div>
-                    <button id="logout-btn" class="text-red-400 hover:text-red-300 text-xs px-2" title="Çıkış"><i class="fas fa-sign-out-alt"></i></button>
+            <div id="history-list" class="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-hide"></div>
+            <div class="p-4 border-t border-gray-800 flex items-center justify-between">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <div class="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center text-gray-900 font-bold" id="user-initial">?</div>
+                    <span id="user-display" class="text-xs truncate text-gray-400">...</span>
                 </div>
+                <button id="logout-btn" class="text-gray-500 hover:text-red-400 p-2"><i class="fas fa-power-off"></i></button>
             </div>
         </aside>
 
-        <!-- Main Chat Area -->
         <main class="flex-1 flex flex-col relative bg-[#111827]">
-            <header class="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900 z-10">
-                <button id="open-sidebar-btn" class="md:hidden text-gray-400"><i class="fas fa-bars"></i></button>
-                <span class="font-bold text-yellow-500 text-lg">DandikGPT</span>
-                <div class="text-xs text-green-500 font-mono border border-green-500/20 bg-green-500/10 px-2 py-1 rounded">Bulut</div>
+            <header class="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900/50 z-10 backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <button id="open-sidebar-btn" class="md:hidden text-gray-400"><i class="fas fa-bars"></i></button>
+                    <span class="font-bold text-yellow-500 text-lg">DandikGPT</span>
+                </div>
+                <div class="text-[9px] text-green-500 font-bold uppercase tracking-tighter border border-green-500/20 bg-green-500/5 px-2 py-1 rounded-full">Sohbet Korunuyor</div>
             </header>
 
-            <div id="chat-container" class="flex-1 overflow-y-auto pt-4 pb-32 px-4 md:px-0 scrollbar-hide scroll-smooth">
-                <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center px-4">
-                    <h1 class="text-xl md:text-2xl font-bold mb-8">Selam <span id="welcome-name" class="text-yellow-500">İnsan</span>!</h1>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-xl">
-                        <button class="preset-btn p-3 rounded border border-gray-700 hover:bg-gray-800 text-left text-sm text-gray-300" data-text="Bana kısa bir fıkra anlat">"Bana kısa bir fıkra anlat"</button>
-                        <button class="preset-btn p-3 rounded border border-gray-700 hover:bg-gray-800 text-left text-sm text-gray-300" data-text="Hayatın anlamı nedir?">"Hayatın anlamı nedir?"</button>
-                    </div>
+            <div id="chat-container" class="flex-1 overflow-y-auto pt-4 pb-36 px-4 md:px-0 scrollbar-hide scroll-smooth">
+                <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center px-4 opacity-50">
+                    <i class="fas fa-robot text-5xl mb-4 text-yellow-500"></i>
+                    <h1 class="text-xl font-bold">Hoş Geldin</h1>
+                    <p class="text-sm">Bir sohbet seçin veya yenisini başlatın.</p>
                 </div>
-                <div id="messages-wrapper" class="w-full max-w-3xl mx-auto space-y-0 hidden pb-4"></div>
-                <div id="loading-indicator" class="hidden w-full max-w-3xl mx-auto px-4 py-6">
-                    <div class="flex gap-4">
-                        <div class="w-8 h-8 rounded-sm bg-green-500/10 flex items-center justify-center text-green-500"><i class="fas fa-robot text-xs"></i></div>
-                        <svg class="w-10 h-5" viewBox="0 0 24 24"><circle class="typing-dot" cx="4" cy="12" r="2"/><circle class="typing-dot" cx="12" cy="12" r="2"/><circle class="typing-dot" cx="20" cy="12" r="2"/></svg>
+                <div id="messages-wrapper" class="w-full max-w-3xl mx-auto space-y-0 hidden"></div>
+                <div id="loading-indicator" class="hidden w-full max-w-3xl mx-auto px-4 py-8">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20"><i class="fas fa-robot text-sm"></i></div>
+                        <div class="flex flex-col gap-1">
+                            <span id="queue-text" class="text-[10px] text-yellow-500 font-bold uppercase">Sıraya alınıyor...</span>
+                            <svg class="w-10 h-5" viewBox="0 0 24 24"><circle class="typing-dot" cx="4" cy="12" r="2"/><circle class="typing-dot" cx="12" cy="12" r="2"/><circle class="typing-dot" cx="20" cy="12" r="2"/></svg>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-[#111827] via-[#111827] to-transparent pt-10 pb-6 px-4">
                 <div class="w-full max-w-3xl mx-auto relative">
-                    <div class="relative flex items-end w-full p-3 bg-[#40414F] rounded-xl border border-gray-600 shadow-xl focus-within:border-yellow-500/50 transition-colors">
-                        <textarea id="prompt-input" rows="1" placeholder="Buraya yaz..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-48 py-2 pr-10 scrollbar-hide font-mono text-sm md:text-base placeholder-gray-400"></textarea>
-                        <button id="send-btn" class="absolute right-3 bottom-3 p-1.5 rounded-md bg-yellow-500 text-gray-900 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors" disabled><i class="fas fa-paper-plane text-sm"></i></button>
+                    <div class="relative flex items-end w-full p-4 bg-[#1f2937] rounded-2xl border border-gray-700 shadow-2xl focus-within:border-yellow-500/50 transition-all">
+                        <textarea id="prompt-input" rows="1" placeholder="Mesajını yaz..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none py-1 pr-12 scrollbar-hide text-sm md:text-base leading-relaxed"></textarea>
+                        <button id="send-btn" class="absolute right-4 bottom-4 p-2 rounded-xl bg-yellow-500 text-gray-900 disabled:opacity-30 transition-all" disabled><i class="fas fa-paper-plane text-sm"></i></button>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Firebase SDKs (Compat sürümleri HTML içinde daha kolay çalışır) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // --- 1. FIREBASE AYARLARI (GÜNCELLENDİ) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDfb06u3InSjQLNOSbpNsu6isjGWIR1qg0",
             authDomain: "dandikgpt.firebaseapp.com",
             projectId: "dandikgpt",
             storageBucket: "dandikgpt.firebasestorage.app",
             messagingSenderId: "858020141627",
-            appId: "1:858020141627:web:e770d0675a22c823d15a1e",
-            measurementId: "G-W31825YR7Y"
+            appId: "1:858020141627:web:e770d0675a22c823d15a1e"
         };
 
-        // Firebase Başlatma
-        let app, auth, provider, db;
-        try {
-            app = firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            db = firebase.firestore();
-            provider = new firebase.auth.GoogleAuthProvider();
-        } catch (e) {
-            console.error("Firebase Hatası:", e);
-        }
-
-        // --- DOM Elemanları ---
-        const loginScreen = document.getElementById('login-screen');
-        const appInterface = document.getElementById('app-interface');
-        const googleLoginBtn = document.getElementById('google-login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const userAvatar = document.getElementById('user-avatar');
-        const userName = document.getElementById('user-name');
-        const welcomeName = document.getElementById('welcome-name');
-        const historyList = document.getElementById('history-list');
-        
-        const input = document.getElementById('prompt-input');
-        const sendBtn = document.getElementById('send-btn');
-        const messagesWrapper = document.getElementById('messages-wrapper');
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const chatContainer = document.getElementById('chat-container');
-        const sidebar = document.getElementById('sidebar');
-        const newChatBtn = document.getElementById('new-chat-btn');
-        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-        const openSidebarBtn = document.getElementById('open-sidebar-btn');
-        const presetBtns = document.querySelectorAll('.preset-btn');
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const appId = "dandikgpt";
 
         const API_URL = "https://api.dandik.tech:8443/chat";
-        
-        let currentUser = null;
         let currentChatId = null;
+        let activeChatUrl = null;
+        let historyUnsub = null;
 
-        // --- AUTH İŞLEMLERİ ---
-        
-        googleLoginBtn.addEventListener('click', () => {
-            if(!auth) return alert("Firebase ayarları yüklenemedi!");
-            auth.signInWithPopup(provider).catch(error => {
-                document.getElementById('login-error').innerText = error.message;
-                document.getElementById('login-error').classList.remove('hidden');
-            });
+        const ui = {
+            login: document.getElementById('login-screen'),
+            app: document.getElementById('app-interface'),
+            email: document.getElementById('email'),
+            pass: document.getElementById('password'),
+            error: document.getElementById('login-error'),
+            history: document.getElementById('history-list'),
+            messages: document.getElementById('messages-wrapper'),
+            input: document.getElementById('prompt-input'),
+            send: document.getElementById('send-btn'),
+            queue: document.getElementById('queue-text'),
+            loader: document.getElementById('loading-indicator'),
+            welcome: document.getElementById('welcome-screen'),
+            container: document.getElementById('chat-container')
+        };
+
+        document.getElementById('register-btn').onclick = () => auth.createUserWithEmailAndPassword(ui.email.value, ui.pass.value).catch(e => ui.error.innerText = e.message);
+        document.getElementById('login-btn').onclick = () => auth.signInWithEmailAndPassword(ui.email.value, ui.pass.value).catch(e => ui.error.innerText = e.message);
+        document.getElementById('google-login-btn').onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => ui.error.innerText = e.message);
+        document.getElementById('logout-btn').onclick = () => auth.signOut().then(() => location.reload());
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                ui.login.classList.add('hidden');
+                ui.app.classList.remove('hidden');
+                setTimeout(() => ui.app.classList.add('opacity-100'), 50);
+                document.getElementById('user-display').innerText = user.email || user.displayName;
+                document.getElementById('user-initial').innerText = (user.email || 'D')[0].toUpperCase();
+                startHistory(user.uid);
+                startNewChat();
+            }
         });
 
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut();
-            window.location.reload();
-        });
-
-        if(auth) {
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    currentUser = user;
-                    // Giriş Başarılı UI
-                    loginScreen.classList.add('opacity-0', 'pointer-events-none');
-                    setTimeout(() => loginScreen.style.display = 'none', 500);
-                    
-                    appInterface.classList.remove('hidden');
-                    setTimeout(() => appInterface.classList.remove('opacity-0'), 100);
-
-                    // Profil Bilgileri
-                    userAvatar.src = user.photoURL;
-                    userName.innerText = user.displayName;
-                    welcomeName.innerText = user.displayName.split(' ')[0];
-                    
-                    loadHistory(); // Geçmişi yükle
-                    startNewChat(); // Yeni sohbet hazırla
-                } else {
-                    // Çıkış
-                    loginScreen.style.display = 'flex';
-                    loginScreen.classList.remove('opacity-0', 'pointer-events-none');
-                    appInterface.classList.add('hidden', 'opacity-0');
-                }
-            });
+        function startHistory(userId) {
+            if (historyUnsub) historyUnsub();
+            historyUnsub = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats')
+                .orderBy('timestamp', 'desc')
+                .onSnapshot(snap => {
+                    ui.history.innerHTML = '<div class="px-2 py-1 text-[10px] font-bold text-gray-600 mt-2 uppercase tracking-widest mb-2">Geçmiş</div>';
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        const isActive = currentChatId === doc.id;
+                        const btn = document.createElement('button');
+                        // SARI RENK AKTİF SOHBET SINIFI: active-chat
+                        btn.className = `w-full text-left px-4 py-3 rounded-xl text-xs truncate transition-all mb-1 ${isActive ? 'active-chat shadow-lg' : 'text-gray-500 hover:bg-gray-800'}`;
+                        btn.innerHTML = `<i class="fas fa-message mr-3 opacity-30"></i> ${data.title || 'Yeni Sohbet'}`;
+                        btn.onclick = () => loadChat(doc.id, data.chatUrl);
+                        ui.history.appendChild(btn);
+                    });
+                });
         }
 
-        // --- FIRESTORE GEÇMİŞ İŞLEMLERİ ---
+        async function loadChat(id, url) {
+            if (currentChatId === id) return;
+            currentChatId = id; activeChatUrl = url;
+            ui.messages.innerHTML = ''; 
+            ui.welcome.classList.add('hidden');
+            ui.messages.classList.remove('hidden');
+            
+            const msgs = await db.collection('artifacts').doc(appId).collection('users').doc(auth.currentUser.uid).collection('chats').doc(id).collection('messages').orderBy('timestamp', 'asc').get();
+            msgs.forEach(m => addMessage(m.data().role, m.data().text, false));
+            // History listesini güncelle (aktif sohbet rengi için)
+            startHistory(auth.currentUser.uid);
+        }
 
         function startNewChat() {
-            currentChatId = Date.now().toString(); // Basit ID
-            messagesWrapper.innerHTML = '';
-            messagesWrapper.classList.add('hidden');
-            welcomeScreen.classList.remove('hidden');
+            currentChatId = "c_" + Date.now(); 
+            activeChatUrl = null;
+            ui.messages.innerHTML = ''; 
+            ui.welcome.classList.remove('hidden');
+            ui.messages.classList.add('hidden');
+            startHistory(auth.currentUser.uid);
         }
 
-        function loadHistory() {
-            if(!db || !currentUser) return;
-            
-            db.collection('users').doc(currentUser.uid).collection('chats')
-              .orderBy('timestamp', 'desc')
-              .onSnapshot(snapshot => {
-                  const container = document.getElementById('history-list');
-                  container.innerHTML = '<div class="px-2 py-1 text-xs font-bold text-gray-500 mt-4">GEÇMİŞ</div>';
-                  
-                  if(snapshot.empty) {
-                      container.innerHTML += '<div class="text-center text-xs text-gray-600 mt-2">Henüz sohbet yok.</div>';
-                      return;
-                  }
+        document.getElementById('new-chat-btn').onclick = startNewChat;
 
-                  snapshot.forEach(doc => {
-                      const data = doc.data();
-                      const btn = document.createElement('button');
-                      btn.className = "w-full text-left px-3 py-2 rounded hover:bg-gray-800 text-sm truncate text-gray-400 mb-1 transition-colors";
-                      btn.innerHTML = `<i class="far fa-comment-alt mr-2"></i> ${data.title}`;
-                      btn.onclick = () => loadChat(doc.id);
-                      container.appendChild(btn);
-                  });
-              });
-        }
-
-        async function loadChat(chatId) {
-            currentChatId = chatId;
-            welcomeScreen.classList.add('hidden');
-            messagesWrapper.classList.remove('hidden');
-            messagesWrapper.innerHTML = ''; // Temizle
-            
-            // Mobilde sidebar'ı kapat
-            sidebar.classList.add('hidden');
-
-            const msgs = await db.collection('users').doc(currentUser.uid).collection('chats').doc(chatId).collection('messages').orderBy('timestamp', 'asc').get();
-            
-            msgs.forEach(doc => {
-                const m = doc.data();
-                addMessage(m.role, m.text, false); // false = animasyonsuz ekle
-            });
-        }
-
-        async function saveMessage(role, text) {
-            if (!currentUser || !currentChatId) return;
-            
-            const chatRef = db.collection('users').doc(currentUser.uid).collection('chats').doc(currentChatId);
-            
-            // Sohbet başlığı yoksa (yeni sohbetse) oluştur
-            const chatDoc = await chatRef.get();
-            if (!chatDoc.exists) {
-                await chatRef.set({
-                    title: text.substring(0, 30) + (text.length > 30 ? '...' : ''),
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
-
-            // Mesajı koleksiyona ekle
-            await chatRef.collection('messages').add({
-                role: role,
-                text: text,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-
-        // --- CHAT UI FONKSİYONLARI ---
-
-        input.addEventListener('input', function() {
-            this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';
-            sendBtn.disabled = this.value.trim() === '';
-        });
-
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-        });
-
-        sendBtn.addEventListener('click', handleSend);
-        newChatBtn.addEventListener('click', startNewChat);
-        closeSidebarBtn.addEventListener('click', () => sidebar.classList.add('hidden'));
-        openSidebarBtn.addEventListener('click', () => sidebar.classList.remove('hidden'));
-
-        presetBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const text = btn.getAttribute('data-text');
-                input.value = text;
-                handleSend();
-            });
-        });
-
-        function scrollToBottom() { chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); }
-
-        function addMessage(role, text = "", animate = true) {
-            welcomeScreen.classList.add('hidden');
-            messagesWrapper.classList.remove('hidden');
-
+        function addMessage(role, text, anim = true) {
+            ui.welcome.classList.add('hidden'); ui.messages.classList.remove('hidden');
             const isUser = role === 'user';
-            const avatar = isUser 
-                ? (auth.currentUser ? `<img src="${auth.currentUser.photoURL}" class="w-8 h-8 rounded-sm">` : '<div class="w-8 h-8 rounded-sm bg-purple-600 text-white font-bold flex items-center justify-center">S</div>')
-                : '<div class="w-8 h-8 rounded-sm bg-green-500 text-white flex items-center justify-center"><i class="fas fa-robot text-xs"></i></div>';
-            
-            const bgClass = isUser ? '' : 'bg-[#444654]/30 border-b border-black/10';
-            
             const div = document.createElement('div');
-            div.className = `w-full ${bgClass} py-6 text-gray-100 group`;
-            div.innerHTML = `
-                <div class="text-base gap-4 md:gap-6 md:max-w-2xl lg:max-w-[38rem] xl:max-w-3xl p-4 md:py-0 flex lg:px-0 m-auto">
-                    <div class="flex-shrink-0 flex flex-col relative items-end">${avatar}</div>
-                    <div class="relative flex-1 overflow-hidden">
-                        <div class="markdown-content prose prose-invert whitespace-pre-wrap leading-7 text-sm md:text-base">${text}</div>
-                    </div>
-                </div>
-            `;
-            messagesWrapper.appendChild(div);
-            if(animate) scrollToBottom();
+            div.className = `w-full py-8 ${isUser ? '' : 'bg-[#1f2937]/40 border-y border-gray-800/50'}`;
+            const avatar = isUser ? `<div class="w-9 h-9 rounded-xl bg-yellow-500 flex items-center justify-center text-gray-900 font-bold shadow-lg">S</div>` : `<div class="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 border border-green-500/20 shadow-lg"><i class="fas fa-robot text-sm"></i></div>`;
+            div.innerHTML = `<div class="max-w-3xl mx-auto flex gap-5 px-4"><div class="shrink-0">${avatar}</div><div class="markdown-content prose prose-invert text-sm flex-1 whitespace-pre-wrap">${text}</div></div>`;
+            ui.messages.appendChild(div);
+            if (anim) ui.container.scrollTo(0, 99999);
             return div.querySelector('.markdown-content');
         }
 
         async function handleSend() {
-            const message = input.value.trim();
-            if (!message) return;
+            const msg = ui.input.value.trim();
+            if (!msg) return;
 
-            const originalValue = input.value;
-            input.value = '';
-            input.style.height = 'auto';
-            sendBtn.disabled = true;
+            const chatId = currentChatId;
+            const userId = auth.currentUser.uid;
             
-            addMessage('user', message);
-            saveMessage('user', message); // DB Kayıt
-            
-            loadingIndicator.classList.remove('hidden');
-            scrollToBottom();
+            ui.input.value = ''; ui.input.style.height = 'auto'; ui.send.disabled = true;
+            addMessage('user', msg);
+            await saveToDB(chatId, 'user', msg);
+
+            ui.loader.classList.remove('hidden');
+            ui.queue.innerText = "Sıraya alınıyor...";
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ message: msg, chatId, userId, chatUrl: activeChatUrl })
                 });
-
-                loadingIndicator.classList.add('hidden');
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                const botContentDiv = addMessage('bot', '');
-                let fullBotResponse = "";
+                let botDiv = null;
+                let fullRes = "";
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    
                     const chunk = decoder.decode(value, { stream: true });
-                    botContentDiv.innerText += chunk;
-                    fullBotResponse += chunk;
-                    scrollToBottom();
-                }
-                
-                saveMessage('bot', fullBotResponse); // Bot Cevabını DB Kayıt
 
-            } catch (error) {
-                loadingIndicator.classList.add('hidden');
-                addMessage('bot', `Hata: ${error.message}. Sunucu açık mı?`);
-                input.value = originalValue;
-                sendBtn.disabled = false;
-            }
-            
-            input.focus();
+                    if (chunk.includes("[QUEUE_POS:")) {
+                        ui.queue.innerText = `Sıradasınız: #${chunk.match(/\[QUEUE_POS:(\d+)\]/)[1]}`;
+                        continue;
+                    }
+
+                    if (!botDiv) {
+                        ui.queue.innerText = "Yazıyor...";
+                        botDiv = addMessage('bot', '');
+                    }
+
+                    fullRes += chunk;
+                    let display = fullRes;
+                    if (fullRes.includes("[URL:")) {
+                        const m = fullRes.match(/\[URL:(.*?)\]/);
+                        if (m) {
+                            activeChatUrl = m[1];
+                            await db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats').doc(chatId).update({ chatUrl: activeChatUrl });
+                            display = fullRes.replace(/\[URL:.*?\]/, '');
+                        }
+                    }
+                    botDiv.innerText = display;
+                    ui.container.scrollTo(0, 99999);
+                }
+                await saveToDB(chatId, 'bot', fullRes.replace(/\[URL:.*?\]/, ''));
+
+            } catch (err) { addMessage('bot', "Sunucu hatası."); }
+            finally { ui.loader.classList.add('hidden'); ui.send.disabled = false; }
         }
-        
-        window.onload = () => input.focus();
+
+        async function saveToDB(id, role, text) {
+            const userId = auth.currentUser.uid;
+            const chatRef = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats').doc(id);
+            const doc = await chatRef.get();
+            if (!doc.exists) {
+                await chatRef.set({ title: text.substring(0, 30), timestamp: firebase.firestore.FieldValue.serverTimestamp(), chatUrl: activeChatUrl });
+            }
+            await chatRef.collection('messages').add({ role, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+
+        ui.input.oninput = function() { this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'; ui.send.disabled = !this.value.trim(); };
+        ui.input.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+        ui.send.onclick = handleSend;
+        document.getElementById('open-sidebar-btn').onclick = () => document.getElementById('sidebar').classList.toggle('hidden');
     </script>
 </body>
 </html>
