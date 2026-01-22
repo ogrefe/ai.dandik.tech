@@ -300,6 +300,20 @@
             overlay: document.getElementById('sidebar-overlay')
         };
 
+        // --- HELPER: HTML Escape (XSS Önleyici) ---
+        function escapeHTML(str) {
+            if (!str) return "";
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[m];
+            });
+        }
+
         function toggleSidebar(open) {
             if (open) {
                 document.body.classList.replace('sidebar-closed', 'sidebar-open');
@@ -409,7 +423,8 @@
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = `bubble ${isUser ? 'bubble-user' : 'bubble-bot'}`;
             
-            bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug">${text}</div>`;
+            // HTML Güvenliği: escapeHTML metodu kullanılarak metin temizleniyor
+            bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug">${escapeHTML(text)}</div>`;
             
             groupDiv.appendChild(bubbleDiv);
             ui.messages.appendChild(groupDiv);
@@ -474,7 +489,8 @@
                                 display = fullRes.replace(/\[URL:.*?\]/, '');
                             }
                         }
-                        botDiv.innerText = display;
+                        // Streaming sırasında da güvenlik için escape ediliyor
+                        botDiv.innerHTML = escapeHTML(display);
                         ui.container.scrollTo({ top: ui.container.scrollHeight });
                     }
                 }
