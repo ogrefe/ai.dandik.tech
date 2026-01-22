@@ -10,10 +10,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Fütüristik Fontlar -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Syntax Highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <style>
         :root {
@@ -134,63 +130,12 @@
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; fill: var(--accent-yellow); }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0.3); opacity: 0.2; } 40% { transform: scale(1.2); opacity: 1; } }
 
-        /* --- CHATGPT STYLE CODE BOX --- */
-        .code-container {
-            background: #0d1117;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            margin: 16px 0;
-            overflow: hidden;
-            font-family: 'Space Mono', monospace;
-            width: 100%;
+        /* SADE METİN ALANI (Kod renklendirme yok) */
+        .markdown-content {
+            white-space: pre-wrap; /* Satır sonlarını korur */
+            word-break: break-word;
         }
 
-        .code-header {
-            background: #21262d;
-            padding: 10px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 11px;
-            color: #8b949e;
-            text-transform: lowercase;
-            font-weight: 600;
-        }
-
-        .copy-btn {
-            background: transparent;
-            color: #8b949e;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.2s;
-        }
-
-        .copy-btn:hover { 
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .code-content {
-            padding: 16px;
-            overflow-x: auto;
-            font-size: 13px;
-            line-height: 1.6;
-            display: block;
-            color: #e2e8f0;
-            font-family: 'Space Mono', monospace;
-            white-space: pre;
-        }
-        
-        pre code.hljs { background: transparent !important; padding: 0 !important; }
-        .markdown-content pre { background: none !important; padding: 0 !important; border: none !important; margin: 0 !important; }
-        .markdown-content p { margin-bottom: 8px; }
         .futu-text { font-family: 'Space Mono', monospace; letter-spacing: 0.1em; }
     </style>
 </head>
@@ -287,7 +232,6 @@
                 </div>
             </div>
 
-            <!-- Mesaj Girişi -->
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/40 to-transparent pt-24 pb-10 px-4 md:px-12 z-30 pb-safe">
                 <div class="w-full max-w-2xl mx-auto">
                     <div class="input-pod relative flex items-center p-3 transition-all duration-500 focus-within:shadow-[0_0_50px_rgba(252,211,77,0.08)]">
@@ -352,66 +296,13 @@
             overlay: document.getElementById('sidebar-overlay')
         };
 
-        function escapeHTML(str) {
-            if (!str) return "";
-            return str.replace(/[&<>"']/g, function(m) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-            });
-        }
-
-        window.copyToClipboard = function(id) {
-            const codeEl = document.getElementById('code-' + id);
-            if (!codeEl) return;
-            const code = codeEl.innerText;
-            const temp = document.createElement('textarea');
-            temp.value = code;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            document.body.removeChild(temp);
-            const btn = document.querySelector(`[data-id="${id}"]`);
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i> Kopyalandı';
-            setTimeout(() => { btn.innerHTML = originalText; }, 2000);
-        }
-
-        // --- GÜÇLÜ KOD AYRIŞTIRICI ---
-        function parseMessage(text) {
+        // --- BASİT METİN TEMİZLEYİCİ ---
+        // Sadece HTML taglerini etkisiz hale getirir, kod bloğu ayrıştırması YAPMAZ.
+        function formatMessage(text) {
             if (!text) return "";
-            
-            // 1. Gereksiz metin kalıntılarını temizle (Regex Düzeltildi)
-            let cleaned = text.replace(/^(?:[a-zA-Z+]+\s+)?Copy code\s*(\n|$)/gmi, '');
-            
-            // 2. Parçalara ayır
-            const segments = cleaned.split(/(```[\s\S]*?```)/g);
-            
-            return segments.map(segment => {
-                if (segment.startsWith('```') && segment.endsWith('```')) {
-                    // Regex Düzeltildi: Unterminated hatası giderildi
-                    const match = segment.match(/```(\w*)\s*\n?([\s\S]*?)```/);
-                    if (!match) return `<div class="mb-3">${escapeHTML(segment)}</div>`;
-                    
-                    const lang = (match[1] || 'plaintext').toLowerCase();
-                    const code = match[2].trim().replace(/^(?:[\w+]+\s+)?Copy code\n?/i, ""); 
-                    const id = Math.random().toString(36).substr(2, 9);
-                    
-                    return `
-                        <div class="code-container">
-                            <div class="code-header">
-                                <span>${lang}</span>
-                                <button class="copy-btn" data-id="${id}" onclick="window.copyToClipboard('${id}')">
-                                    <i class="far fa-copy"></i> Kopyala
-                                </button>
-                            </div>
-                            <pre><code id="code-${id}" class="code-content hljs language-${lang}">${escapeHTML(code)}</code></pre>
-                        </div>
-                    `;
-                } else {
-                    const trimmed = segment.trim();
-                    if (!trimmed) return "";
-                    return `<div class="mb-3">${escapeHTML(segment).replace(/\n/g, '<br>')}</div>`;
-                }
-            }).join('');
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function toggleSidebar(open) {
@@ -480,11 +371,12 @@
         function startHistory(userId) {
             if (historyUnsub) historyUnsub();
             historyUnsub = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats').orderBy('timestamp', 'desc').onSnapshot(snap => {
-                ui.history.innerHTML = '<div class="px-2 py-3 text-[9px] font-black text-gray-700 mt-2 uppercase tracking-[0.3em] mb-4 opacity-40 futu-text">Arşiv</div>';
+                ui.history.innerHTML = '<div class="px-2 py-3 text-[9px] font-black text-gray-700 mt-2 uppercase tracking-[0.3em] mb-4 opacity-40 futu-text">Archive</div>';
                 snap.forEach(doc => {
                     const data = doc.data();
                     const isActive = currentChatId === doc.id;
                     if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
+
                     const btn = document.createElement('button');
                     btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all duration-500 flex items-center gap-4 border border-transparent ${isActive ? 'active-chat' : 'text-gray-500 hover:bg-white/5 hover:text-white'}`;
                     btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'New Stream'}`;
@@ -517,10 +409,10 @@
             groupDiv.className = `message-group ${isUser ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`;
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = `bubble ${isUser ? 'bubble-user' : 'bubble-bot'}`;
-            bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug font-normal">${parseMessage(text)}</div>`;
+            // Artık formatMessage sadece düz metin döndürüyor, karmaşık işlemler yok
+            bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug font-normal">${formatMessage(text)}</div>`;
             groupDiv.appendChild(bubbleDiv);
             ui.messages.appendChild(groupDiv);
-            bubbleDiv.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
             if (anim) ui.container.scrollTo({ top: ui.container.scrollHeight, behavior: 'smooth' });
             return bubbleDiv.querySelector('.markdown-content');
         }
@@ -535,7 +427,7 @@
             addMessage('user', msg);
             await saveToDB(chatId, 'user', msg);
             ui.loader.classList.remove('hidden');
-            ui.queue.innerText = "Syncing Engine";
+            ui.queue.innerText = "Syncing";
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -571,14 +463,13 @@
                                 display = fullRes.replace(/\[URL:.*?\]/, '');
                             }
                         }
-                        botDiv.innerText = display;
+                        // Sadece güvenli metin (escapeHTML)
+                        botDiv.innerHTML = formatMessage(display);
                         ui.container.scrollTo({ top: ui.container.scrollHeight });
                     }
                 }
                 const finalTxt = fullRes.replace(/\[URL:.*?\]/, '');
                 if (finalTxt && botDiv) {
-                    botDiv.innerHTML = parseMessage(finalTxt);
-                    botDiv.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
                     await saveToDB(chatId, 'bot', finalTxt);
                 }
             } catch (err) { addMessage('bot', "Sync Lost."); }
