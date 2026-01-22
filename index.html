@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DandikGPT | Liquid Glass DM</title>
+    <title>DandikGPT | Dandik</title>
     
     <!-- Scripts & Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@200;400;500;600&display=swap" rel="stylesheet">
+    <!-- Fütüristik Fontlar -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Syntax Highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -22,7 +23,7 @@
         }
 
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Space Grotesk', sans-serif; 
             background-color: #020202; 
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
@@ -77,7 +78,7 @@
             color: #000;
             border-radius: 24px 24px 4px 24px;
             align-self: flex-end;
-            font-weight: 500;
+            font-weight: 600;
             box-shadow: 0 10px 25px rgba(252, 211, 77, 0.1);
         }
 
@@ -101,7 +102,7 @@
         /* SEÇİLİ SOHBET VURGUSU */
         .active-chat { 
             background: rgba(252, 211, 77, 0.05) !important; 
-            border: 1px solid rgba(252, 211, 77, 0.25) !important;
+            border: 1px solid rgba(252, 211, 77, 0.3) !important;
             color: var(--accent-yellow) !important; 
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
         }
@@ -137,7 +138,7 @@
         .code-container {
             background: #0d1117;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 12px;
             margin: 16px 0;
             overflow: hidden;
             font-family: 'Space Mono', monospace;
@@ -146,7 +147,7 @@
 
         .code-header {
             background: #21262d;
-            padding: 8px 16px;
+            padding: 10px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -162,7 +163,7 @@
             color: #8b949e;
             border: none;
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 11px;
             display: flex;
@@ -171,7 +172,10 @@
             transition: color 0.2s;
         }
 
-        .copy-btn:hover { color: #fff; }
+        .copy-btn:hover { 
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
 
         .code-content {
             padding: 16px;
@@ -179,20 +183,15 @@
             font-size: 13px;
             line-height: 1.6;
             display: block;
+            color: #e2e8f0;
+            font-family: 'Space Mono', monospace;
+            white-space: pre;
         }
         
-        /* Highlight.js Override */
         pre code.hljs { background: transparent !important; padding: 0 !important; }
-        
-        .markdown-content pre { 
-            background: none !important;
-            padding: 0 !important;
-            border: none !important;
-            margin: 0 !important;
-        }
-        
-        .markdown-content p { margin-bottom: 12px; }
-        .markdown-content p:last-child { margin-bottom: 0; }
+        .markdown-content pre { background: none !important; padding: 0 !important; border: none !important; margin: 0 !important; }
+        .markdown-content p { margin-bottom: 8px; }
+        .futu-text { font-family: 'Space Mono', monospace; letter-spacing: 0.1em; }
     </style>
 </head>
 <body class="text-gray-100 h-screen flex flex-col overflow-hidden sidebar-closed">
@@ -204,7 +203,6 @@
         <div class="blob" style="top: 35%; left: 25%; width: 600px; height: 600px; animation-duration: 50s; opacity: 0.4;"></div>
     </div>
 
-    <!-- Mobil Overlay -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity duration-500"></div>
 
     <!-- 1. GİRİŞ EKRANI -->
@@ -212,7 +210,7 @@
         <div class="w-full max-w-md glass-panel p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden text-center">
             <div class="absolute -top-32 -left-32 w-80 h-80 bg-yellow-500/5 blur-[120px] rounded-full"></div>
             <i class="fas fa-robot text-7xl text-yellow-500 mb-10 drop-shadow-[0_0_25px_rgba(252,211,77,0.25)]"></i>
-            <h1 class="text-4xl font-extralight mb-12 tracking-tight text-white uppercase">Dandik<span class="font-bold text-yellow-500">GPT</span></h1>
+            <h1 class="text-4xl font-extralight mb-12 tracking-tight text-white uppercase futu-text">Dandik<span class="font-bold text-yellow-500">GPT</span></h1>
             <div class="space-y-6">
                 <input type="email" id="email" placeholder="E-posta" class="w-full bg-white/5 border border-white/5 rounded-2xl px-7 py-5 text-sm outline-none focus:border-yellow-500/30 transition-all text-white placeholder-gray-600 backdrop-blur-md">
                 <input type="password" id="password" placeholder="Şifre" class="w-full bg-white/5 border border-white/5 rounded-2xl px-7 py-5 text-sm outline-none focus:border-yellow-500/30 transition-all text-white placeholder-gray-600 backdrop-blur-md">
@@ -231,10 +229,9 @@
     <!-- 2. ANA UYGULAMA -->
     <div id="app-interface" class="flex-1 flex overflow-hidden hidden opacity-0 transition-opacity duration-1000">
         
-        <!-- Sidebar -->
         <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 md:w-80 flex flex-col bg-white/[0.005] backdrop-blur-[60px] border-r border-white/5 h-full z-50">
             <div class="p-8">
-                <button id="new-chat-btn" class="flex items-center justify-center gap-3 w-full py-5 rounded-[2rem] glass-panel border-white/10 text-yellow-500 font-bold text-sm active:scale-95 transition-all">
+                <button id="new-chat-btn" class="flex items-center justify-center gap-3 w-full py-5 rounded-[2rem] glass-panel border-white/10 text-yellow-500 font-bold text-sm active:scale-95 transition-all futu-text">
                     <i class="fas fa-edit"></i> Yeni Sohbet
                 </button>
             </div>
@@ -245,28 +242,27 @@
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-black font-black shadow-lg" id="user-initial">?</div>
                     <div class="overflow-hidden text-left">
                         <div id="user-display" class="text-xs font-bold truncate text-white">...</div>
-                        <div class="text-[9px] text-green-400 font-black uppercase tracking-tighter opacity-60">Çevrimiçi</div>
+                        <div class="text-[9px] text-green-400 font-black uppercase tracking-tighter opacity-60 futu-text">Çevrimiçi</div>
                     </div>
                 </div>
                 <button id="logout-btn" class="p-2 text-gray-600 hover:text-red-400 transition-all"><i class="fas fa-power-off"></i></button>
             </div>
         </aside>
 
-        <!-- İçerik Alanı -->
         <main class="flex-1 flex flex-col relative min-w-0">
             <header class="flex items-center justify-between p-6 z-30 bg-black/10 backdrop-blur-md border-b border-white/5">
                 <div class="flex items-center gap-5">
                     <button id="hamburger-btn" class="md:hidden p-3 -ml-2 text-gray-400 hover:bg-white/5 rounded-2xl transition-colors"><i class="fas fa-bars text-xl"></i></button>
                     <div class="flex flex-col">
-                        <span class="font-bold text-yellow-500 text-2xl tracking-tighter">Dandik<span class="text-white opacity-80">GPT</span></span>
+                        <span class="font-bold text-yellow-500 text-2xl tracking-tighter futu-text">Dandik<span class="text-white opacity-80">GPT</span></span>
                         <div class="flex items-center gap-1.5 mt-0.5">
                             <div id="status-dot" class="w-1.5 h-1.5 bg-gray-700 rounded-full"></div>
-                            <span id="status-text" class="text-[9px] text-gray-500 font-black uppercase tracking-widest">Sistem Hazır</span>
+                            <span id="status-text" class="text-[9px] text-gray-500 font-black uppercase tracking-widest futu-text">Sistem Hazır</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="hidden sm:inline-block text-[8px] text-gray-500 font-black font-mono px-4 py-2 bg-white/5 rounded-xl border border-white/5 tracking-widest">V0.0.2</span>
+                    <span class="hidden sm:inline-block text-[8px] text-gray-500 font-black font-mono px-4 py-2 bg-white/5 rounded-xl border border-white/5 tracking-widest futu-text">V0.0.2</span>
                 </div>
             </header>
 
@@ -275,7 +271,7 @@
                     <div class="w-28 h-28 glass-panel rounded-full flex items-center justify-center mb-10 shadow-2xl border-white/10">
                         <i class="fas fa-robot text-6xl text-yellow-500"></i>
                     </div>
-                    <h1 class="text-3xl font-extralight text-white mb-4 tracking-tight uppercase">DandikGPT</h1>
+                    <h1 class="text-3xl font-light text-white mb-4 tracking-tight uppercase futu-text">DandikGPT</h1>
                     <p class="text-sm text-gray-400 max-w-xs leading-loose">Dandik bir yapay zeka deneyimi. Bugün sana nasıl yardımcı olabilirim?</p>
                 </div>
                 
@@ -286,7 +282,7 @@
                         <div class="bubble bubble-bot flex items-center py-4 px-6">
                             <svg class="w-12 h-6" viewBox="0 0 24 24"><circle class="typing-dot" cx="4" cy="12" r="3"/><circle class="typing-dot" cx="12" cy="12" r="3"/><circle class="typing-dot" cx="20" cy="12" r="3"/></svg>
                         </div>
-                        <span id="queue-text" class="text-[8px] text-yellow-500/40 font-black uppercase ml-4 tracking-[0.2em]">Veri İşleniyor</span>
+                        <span id="queue-text" class="text-[8px] text-yellow-500/40 font-black uppercase ml-4 tracking-[0.2em] futu-text">İşleniyor</span>
                     </div>
                 </div>
             </div>
@@ -296,7 +292,7 @@
                 <div class="w-full max-w-2xl mx-auto">
                     <div class="input-pod relative flex items-center p-3 transition-all duration-500 focus-within:shadow-[0_0_50px_rgba(252,211,77,0.08)]">
                         <div class="flex-1 flex items-end px-4">
-                            <textarea id="prompt-input" rows="1" placeholder="Dandik bir mesaj bırak..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-56 py-3 scrollbar-hide text-base leading-relaxed placeholder-gray-600 font-light"></textarea>
+                            <textarea id="prompt-input" rows="1" placeholder="Mesaj gönder..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-56 py-3 scrollbar-hide text-base leading-relaxed placeholder-gray-600 font-light"></textarea>
                         </div>
                         <button id="send-btn" class="w-12 h-12 rounded-full text-yellow-500 disabled:opacity-0 transition-all hover:scale-110 active:scale-90 flex items-center justify-center" disabled>
                             <i class="fas fa-paper-plane text-xl"></i>
@@ -356,29 +352,23 @@
             overlay: document.getElementById('sidebar-overlay')
         };
 
-        // --- HELPER: HTML Escape & Copy ---
         function escapeHTML(str) {
             if (!str) return "";
             return str.replace(/[&<>"']/g, function(m) {
-                return {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;'
-                }[m];
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
             });
         }
 
         window.copyToClipboard = function(id) {
-            const code = document.getElementById('code-' + id).innerText;
+            const codeEl = document.getElementById('code-' + id);
+            if (!codeEl) return;
+            const code = codeEl.innerText;
             const temp = document.createElement('textarea');
             temp.value = code;
             document.body.appendChild(temp);
             temp.select();
             document.execCommand('copy');
             document.body.removeChild(temp);
-            
             const btn = document.querySelector(`[data-id="${id}"]`);
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-check"></i> Kopyalandı';
@@ -389,17 +379,20 @@
         function parseMessage(text) {
             if (!text) return "";
             
-            // Kod bloklarını (```lang ... ```) bul
-            const segments = text.split(/(```[\s\S]*?```)/g);
+            // 1. Gereksiz metin kalıntılarını temizle (Regex Düzeltildi)
+            let cleaned = text.replace(/^(?:[a-zA-Z+]+\s+)?Copy code\s*(\n|$)/gmi, '');
+            
+            // 2. Parçalara ayır
+            const segments = cleaned.split(/(```[\s\S]*?```)/g);
             
             return segments.map(segment => {
                 if (segment.startsWith('```') && segment.endsWith('```')) {
-                    // Kod bloğu tespiti
-                    const match = segment.match(/```(\w*)\n?([\s\S]*?)```/);
-                    if (!match) return escapeHTML(segment);
+                    // Regex Düzeltildi: Unterminated hatası giderildi
+                    const match = segment.match(/```(\w*)\s*\n?([\s\S]*?)```/);
+                    if (!match) return `<div class="mb-3">${escapeHTML(segment)}</div>`;
                     
                     const lang = (match[1] || 'plaintext').toLowerCase();
-                    const code = match[2].trim();
+                    const code = match[2].trim().replace(/^(?:[\w+]+\s+)?Copy code\n?/i, ""); 
                     const id = Math.random().toString(36).substr(2, 9);
                     
                     return `
@@ -414,8 +407,9 @@
                         </div>
                     `;
                 } else {
-                    // Normal metin tespiti (XSS Korumalı)
-                    return `<p>${escapeHTML(segment).replace(/\n/g, '<br>')}</p>`;
+                    const trimmed = segment.trim();
+                    if (!trimmed) return "";
+                    return `<div class="mb-3">${escapeHTML(segment).replace(/\n/g, '<br>')}</div>`;
                 }
             }).join('');
         }
@@ -439,12 +433,12 @@
                 await fetch(HEARTBEAT_URL, { mode: 'no-cors' });
                 isBackendOnline = true;
                 ui.statusText.innerText = "Online";
-                ui.statusText.className = "text-green-400 text-[9px] font-black uppercase tracking-widest";
+                ui.statusText.className = "text-green-400 text-[9px] font-black uppercase tracking-widest futu-text";
                 ui.statusDot.className = "w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse";
             } catch (e) {
                 isBackendOnline = false;
                 ui.statusText.innerText = "Offline";
-                ui.statusText.className = "text-red-400 text-[9px] font-black uppercase tracking-widest";
+                ui.statusText.className = "text-red-400 text-[9px] font-black uppercase tracking-widest futu-text";
                 ui.statusDot.className = "w-1.5 h-1.5 bg-red-500 rounded-full";
             }
         }
@@ -474,7 +468,7 @@
                 setTimeout(() => {
                     ui.login.classList.add('hidden');
                     ui.app.classList.remove('hidden');
-                    setTimeout(() => ui.app.classList.add('opacity-100'), 50);
+                    setTimeout(() => ui.app.classList.add('opacity-100'), 500);
                 }, 500);
                 document.getElementById('user-display').innerText = user.email || user.displayName;
                 document.getElementById('user-initial').innerText = (user.email || 'D')[0].toUpperCase();
@@ -485,22 +479,19 @@
 
         function startHistory(userId) {
             if (historyUnsub) historyUnsub();
-            historyUnsub = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats')
-                .orderBy('timestamp', 'desc')
-                .onSnapshot(snap => {
-                    ui.history.innerHTML = '<div class="px-2 py-3 text-[9px] font-black text-gray-700 mt-2 uppercase tracking-[0.3em] mb-4 opacity-40">Archive</div>';
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        const isActive = currentChatId === doc.id;
-                        if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
-
-                        const btn = document.createElement('button');
-                        btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all duration-500 flex items-center gap-4 border border-transparent ${isActive ? 'active-chat' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`;
-                        btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'New Stream'}`;
-                        btn.onclick = () => { loadChat(doc.id, data.chatUrl); toggleSidebar(false); };
-                        ui.history.appendChild(btn);
-                    });
+            historyUnsub = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats').orderBy('timestamp', 'desc').onSnapshot(snap => {
+                ui.history.innerHTML = '<div class="px-2 py-3 text-[9px] font-black text-gray-700 mt-2 uppercase tracking-[0.3em] mb-4 opacity-40 futu-text">Arşiv</div>';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const isActive = currentChatId === doc.id;
+                    if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all duration-500 flex items-center gap-4 border border-transparent ${isActive ? 'active-chat' : 'text-gray-500 hover:bg-white/5 hover:text-white'}`;
+                    btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'New Stream'}`;
+                    btn.onclick = () => { loadChat(doc.id, data.chatUrl); toggleSidebar(false); };
+                    ui.history.appendChild(btn);
                 });
+            });
         }
 
         async function loadChat(id, url) {
@@ -522,71 +513,53 @@
         function addMessage(role, text, anim = true) {
             ui.welcome.classList.add('hidden'); ui.messages.classList.remove('hidden');
             const isUser = role === 'user';
-            
             const groupDiv = document.createElement('div');
             groupDiv.className = `message-group ${isUser ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`;
-            
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = `bubble ${isUser ? 'bubble-user' : 'bubble-bot'}`;
-            
-            // Mesajı ayrıştır ve formatla
             bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug font-normal">${parseMessage(text)}</div>`;
-            
             groupDiv.appendChild(bubbleDiv);
             ui.messages.appendChild(groupDiv);
-            
-            // Syntax Highlighting Uygula
-            bubbleDiv.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
-            
+            bubbleDiv.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
             if (anim) ui.container.scrollTo({ top: ui.container.scrollHeight, behavior: 'smooth' });
             return bubbleDiv.querySelector('.markdown-content');
         }
 
         async function handleSend() {
             const msg = ui.input.value.trim();
-            if (!msg) return;
-            if (!isBackendOnline) { addMessage('bot', "The engine is in standby."); return; }
-
+            if (!msg || !isBackendOnline) return;
             const chatId = currentChatId;
             const userId = auth.currentUser.uid;
             const currentUrl = activeChatUrl;
-            
             ui.input.value = ''; ui.input.style.height = 'auto'; ui.send.disabled = true;
             addMessage('user', msg);
             await saveToDB(chatId, 'user', msg);
-
             ui.loader.classList.remove('hidden');
-            ui.queue.innerText = "Engaging";
-            ui.container.scrollTo({ top: ui.container.scrollHeight, behavior: 'smooth' });
-
+            ui.queue.innerText = "Syncing Engine";
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: msg, chatId, userId, chatUrl: currentUrl })
                 });
-
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let botDiv = null;
                 let fullRes = "";
-
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
                     const chunk = decoder.decode(value, { stream: true });
-
                     if (chunk.includes("[QUEUE_POS:")) {
                         const pos = chunk.match(/\[QUEUE_POS:(\d+)\]/)[1];
-                        ui.queue.innerText = `Position: ${pos}`;
+                        ui.queue.innerText = `Pos: ${pos}`;
                         continue;
                     }
-
                     if (!botDiv && !chunk.includes("[URL:")) {
                         ui.queue.innerText = "Synthesizing";
                         botDiv = addMessage('bot', '');
+                        fullRes = "";
                     }
-
                     if (botDiv) {
                         fullRes += chunk;
                         let display = fullRes;
@@ -598,35 +571,25 @@
                                 display = fullRes.replace(/\[URL:.*?\]/, '');
                             }
                         }
-                        
-                        // Streaming sırasında ham metin olarak göster (Performans için)
-                        // Bittiğinde parse edilecek
                         botDiv.innerText = display;
                         ui.container.scrollTo({ top: ui.container.scrollHeight });
                     }
                 }
-                
                 const finalTxt = fullRes.replace(/\[URL:.*?\]/, '');
                 if (finalTxt && botDiv) {
-                    // İşlem bittiğinde zengin formatı (kod kutuları vs.) uygula
                     botDiv.innerHTML = parseMessage(finalTxt);
                     botDiv.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
                     await saveToDB(chatId, 'bot', finalTxt);
                 }
-            } catch (err) { 
-                addMessage('bot', "Sync Lost."); 
-            } finally { 
-                ui.loader.classList.add('hidden'); ui.send.disabled = false; ui.input.focus();
-            }
+            } catch (err) { addMessage('bot', "Sync Lost."); }
+            finally { ui.loader.classList.add('hidden'); ui.send.disabled = false; ui.input.focus(); }
         }
 
         async function saveToDB(id, role, text) {
             const userId = auth.currentUser.uid;
             const chatRef = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats').doc(id);
             const doc = await chatRef.get();
-            if (!doc.exists) {
-                await chatRef.set({ title: text.substring(0, 30) + '...', timestamp: firebase.firestore.FieldValue.serverTimestamp(), chatUrl: activeChatUrl });
-            }
+            if (!doc.exists) await chatRef.set({ title: text.substring(0, 30) + '...', timestamp: firebase.firestore.FieldValue.serverTimestamp(), chatUrl: activeChatUrl });
             await chatRef.collection('messages').add({ role, text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         }
 
