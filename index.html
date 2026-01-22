@@ -264,10 +264,10 @@
             <div id="chat-container" class="flex-1 overflow-y-auto pt-8 pb-48 scrollbar-hide scroll-smooth">
                 <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center px-10 opacity-30 transition-all duration-700">
                     <div class="w-28 h-28 glass-panel rounded-full flex items-center justify-center mb-10 shadow-2xl border-white/10">
-                        <i class="fas fa-terminal text-6xl text-yellow-500"></i>
+                        <i class="fas fa-robot text-6xl text-yellow-500"></i>
                     </div>
-                    <h1 class="text-3xl font-extralight text-white mb-4 tracking-tight uppercase">DandikGPT İletişim Portalı</h1>
-                    <p class="text-sm text-gray-400 max-w-xs leading-loose">Liquid Glass mimarisi üzerine kurgulanmış, kurumsal standartlarda optimize edilmiş etkileşim deneyimi.</p>
+                    <h1 class="text-3xl font-extralight text-white mb-4 tracking-tight uppercase">DandikGPT</h1>
+                    <p class="text-sm text-gray-400 max-w-xs leading-loose">Dandik bir yapay zeka deneyimi. Bugün sana nasıl yardımcı olabilirim?</p>
                 </div>
                 
                 <div id="messages-wrapper" class="w-full max-w-2xl mx-auto hidden flex flex-col px-6 gap-6 pb-4"></div>
@@ -287,7 +287,7 @@
                 <div class="w-full max-w-2xl mx-auto">
                     <div class="input-pod relative flex items-center p-3 transition-all duration-500 focus-within:shadow-[0_0_50px_rgba(252,211,77,0.08)]">
                         <div class="flex-1 flex items-end px-4">
-                            <textarea id="prompt-input" rows="1" placeholder="Mesajınızı buraya bırakın..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-56 py-3 scrollbar-hide text-base leading-relaxed placeholder-gray-600 font-light"></textarea>
+                            <textarea id="prompt-input" rows="1" placeholder="Dandik bir mesaj bırak..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-56 py-3 scrollbar-hide text-base leading-relaxed placeholder-gray-600 font-light"></textarea>
                         </div>
                         <button id="send-btn" class="w-12 h-12 rounded-full text-yellow-500 disabled:opacity-0 transition-all hover:scale-110 active:scale-90 flex items-center justify-center" disabled>
                             <i class="fas fa-paper-plane text-xl"></i>
@@ -400,7 +400,6 @@
             });
 
             // Geri kalan metin için HTML escape ama kod bloklarını koruyarak
-            // (Basit bir yaklaşım: Eğer metinde <div class="code-container"> yoksa escape et)
             if (!formatted.includes('<div class="code-container">')) {
                 return escapeHTML(formatted);
             }
@@ -431,7 +430,7 @@
                 ui.statusDot.className = "w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse";
             } catch (e) {
                 isBackendOnline = false;
-                ui.statusText.innerText = "Standby";
+                ui.statusText.innerText = "Offline";
                 ui.statusText.className = "text-red-400 text-[9px] font-black uppercase tracking-widest";
                 ui.statusDot.className = "w-1.5 h-1.5 bg-red-500 rounded-full";
             }
@@ -517,7 +516,6 @@
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = `bubble ${isUser ? 'bubble-user' : 'bubble-bot'}`;
             
-            // Kod bloklarını içeren metni formatla
             bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug font-normal">${formatMessage(text)}</div>`;
             
             groupDiv.appendChild(bubbleDiv);
@@ -541,7 +539,7 @@
             await saveToDB(chatId, 'user', msg);
 
             ui.loader.classList.remove('hidden');
-            ui.queue.innerText = "Sunucuya Bağlanılıyor";
+            ui.queue.innerText = "Bağlanılıyor";
             ui.container.scrollTo({ top: ui.container.scrollHeight, behavior: 'smooth' });
 
             try {
@@ -568,7 +566,7 @@
                     }
 
                     if (!botDiv && !chunk.includes("[URL:")) {
-                        ui.queue.innerText = "Cevap Oluşturuluyor";
+                        ui.queue.innerText = "Cevaplanıyor";
                         botDiv = addMessage('bot', '');
                     }
 
@@ -583,14 +581,12 @@
                                 display = fullRes.replace(/\[URL:.*?\]/, '');
                             }
                         }
-                        // Streaming sırasında düz metin olarak escape edip basıyoruz, bittiğinde parse edilecek
                         botDiv.innerHTML = escapeHTML(display);
                         ui.container.scrollTo({ top: ui.container.scrollHeight });
                     }
                 }
                 const finalTxt = fullRes.replace(/\[URL:.*?\]/, '');
                 if (finalTxt) {
-                    // İşlem bittiğinde kod bloklarını render et
                     botDiv.innerHTML = formatMessage(finalTxt);
                     await saveToDB(chatId, 'bot', finalTxt);
                 }
