@@ -8,17 +8,13 @@
     <!-- Scripts & Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Fütüristik Fontlar -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Syntax Highlighting (Kaldırıldı ama kütüphane linki kalabilir, zararı yok) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <style>
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.015);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            /* Daha yoğun ve sıvı görünümlü cam değişkenleri */
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.06);
             --accent-yellow: #FCD34D;
         }
 
@@ -41,10 +37,11 @@
         .blob {
             position: absolute;
             width: 850px; height: 850px;
-            background: linear-gradient(135deg, rgba(252, 211, 77, 0.05) 0%, rgba(59, 130, 246, 0.03) 100%);
-            filter: blur(120px);
+            background: linear-gradient(135deg, rgba(252, 211, 77, 0.06) 0%, rgba(59, 130, 246, 0.04) 100%);
+            filter: blur(100px); /* Daha akışkan görünüm */
             border-radius: 50%;
             animation: move 40s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            opacity: 0.7;
         }
 
         @keyframes move {
@@ -55,12 +52,13 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* --- GLASSMORPHISM --- */
+        /* --- ENHANCED GLASSMORPHISM --- */
         .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(60px);
-            -webkit-backdrop-filter: blur(60px);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         /* --- INSTAGRAM STYLE BUBBLES --- */
@@ -68,9 +66,10 @@
             max-width: 85%;
             padding: 14px 20px;
             font-size: 15px;
-            line-height: 1.5;
+            line-height: 1.6;
             position: relative;
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            word-wrap: break-word;
         }
 
         .bubble-user {
@@ -79,17 +78,18 @@
             border-radius: 24px 24px 4px 24px;
             align-self: flex-end;
             font-weight: 600;
-            box-shadow: 0 10px 25px rgba(252, 211, 77, 0.1);
+            box-shadow: 0 10px 25px rgba(252, 211, 77, 0.15);
         }
 
         .bubble-bot {
             background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #fff;
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
             border-radius: 24px 24px 24px 4px;
             align-self: flex-start;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .message-group {
@@ -101,13 +101,13 @@
 
         /* SEÇİLİ SOHBET VURGUSU */
         .active-chat { 
-            background: rgba(252, 211, 77, 0.05) !important; 
-            border: 1px solid rgba(252, 211, 77, 0.3) !important;
+            background: rgba(252, 211, 77, 0.1) !important; 
+            border: 1px solid rgba(252, 211, 77, 0.25) !important;
             color: var(--accent-yellow) !important; 
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 25px rgba(252, 211, 77, 0.1);
         }
 
-        #sidebar { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        #sidebar { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .sidebar-open #sidebar { transform: translateX(0); }
         .sidebar-closed #sidebar { transform: translateX(-100%); }
         
@@ -115,53 +115,56 @@
             #sidebar { 
                 transform: translateX(0) !important; 
                 position: relative !important; 
-                background: rgba(255, 255, 255, 0.01);
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(40px);
             }
         }
         
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-        /* Floating Input Pod */
+        /* Floating Input Pod - MAVİ ÇİZGİ ENGELİ */
         .input-pod {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(45px);
-            -webkit-backdrop-filter: blur(45px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 3.5rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        /* Odaklanınca MAVİ YOK -> Sarı/Nötr efekt */
+        .input-pod:focus-within {
+            border-color: rgba(252, 211, 77, 0.3);
+            background: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(252, 211, 77, 0.1);
+        }
+        
+        /* Textarea default outline kaldırma */
+        textarea:focus, button:focus {
+            outline: none !important;
+            box-shadow: none !important;
         }
 
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; fill: var(--accent-yellow); }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0.3); opacity: 0.2; } 40% { transform: scale(1.2); opacity: 1; } }
 
-        /* --- CODE BOX STYLES (Kaldırıldı veya basitleştirildi) --- */
-        .code-container {
-            /* Stil kaldırıldı veya gizlendi */
-            display: none;
-        }
-
-        .copy-btn {
-           /* Stil kaldırıldı */
-           display: none;
-        }
-
-        .code-content {
-            /* Stil kaldırıldı */
-        }
-        
-        /* Highlight.js Override */
-        pre code.hljs { background: transparent !important; padding: 0 !important; }
-        
-        /* Düz metin stilleri */
+        /* SADE METİN ALANI (Kod renklendirme yok) */
         .markdown-content pre { 
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin: 0.5rem 0;
-            overflow-x: auto;
+            background: #1f2937; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            overflow-x: auto; 
+            margin: 0.5rem 0; 
+            border: 1px solid #374151; 
         }
-        .markdown-content p { margin-bottom: 8px; }
+        .markdown-content code { color: #FCD34D; font-size: 0.9em; font-family: 'Space Mono', monospace; }
+
+        .markdown-content {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
         .futu-text { font-family: 'Space Mono', monospace; letter-spacing: 0.1em; }
     </style>
 </head>
@@ -260,7 +263,7 @@
 
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/40 to-transparent pt-24 pb-10 px-4 md:px-12 z-30 pb-safe">
                 <div class="w-full max-w-2xl mx-auto">
-                    <div class="input-pod relative flex items-center p-3 transition-all duration-500 focus-within:shadow-[0_0_50px_rgba(252,211,77,0.08)]">
+                    <div class="input-pod relative flex items-center p-3 transition-all duration-500">
                         <div class="flex-1 flex items-end px-4">
                             <textarea id="prompt-input" rows="1" placeholder="Mesaj gönder..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-56 py-3 scrollbar-hide text-base leading-relaxed placeholder-gray-600 font-light"></textarea>
                         </div>
@@ -329,7 +332,7 @@
             });
         }
 
-        // --- BASİT MESAJ AYRIŞTIRICI (Kod Ayrıştırma Yok, Sadece Escape) ---
+        // --- BASİT MESAJ AYRIŞTIRICI (NO Regex Magic) ---
         function parseMessage(text) {
             if (!text) return "";
             return escapeHTML(text);
@@ -406,6 +409,7 @@
                     const data = doc.data();
                     const isActive = currentChatId === doc.id;
                     if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
+
                     const btn = document.createElement('button');
                     btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all duration-500 flex items-center gap-4 border border-transparent ${isActive ? 'active-chat' : 'text-gray-500 hover:bg-white/5 hover:text-white'}`;
                     btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'New Stream'}`;
@@ -456,7 +460,7 @@
             addMessage('user', msg);
             await saveToDB(chatId, 'user', msg);
             ui.loader.classList.remove('hidden');
-            ui.queue.innerText = "Syncing";
+            ui.queue.innerText = "Sıraya bağlanılıyor...";
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -473,11 +477,11 @@
                     const chunk = decoder.decode(value, { stream: true });
                     if (chunk.includes("[QUEUE_POS:")) {
                         const pos = chunk.match(/\[QUEUE_POS:(\d+)\]/)[1];
-                        ui.queue.innerText = `Pos: ${pos}`;
+                        ui.queue.innerText = `Sıra: ${pos}`;
                         continue;
                     }
                     if (!botDiv && !chunk.includes("[URL:")) {
-                        ui.queue.innerText = "Synthesizing";
+                        ui.queue.innerText = "Yazıyor...";
                         botDiv = addMessage('bot', '');
                         fullRes = "";
                     }
