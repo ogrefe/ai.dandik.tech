@@ -117,7 +117,7 @@
         
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-        /* Floating Input Pod */
+        /* Floating Input Pod - MAVİ FOCUS ENGELİ */
         .input-pod {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(45px);
@@ -125,26 +125,42 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 3.5rem;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            /* Focus outline kaldırılıyor */
+            outline: none !important;
+        }
+        
+        .input-pod:focus-within {
+            border-color: rgba(252, 211, 77, 0.3); /* Sarı vurgu */
+            box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.1);
         }
 
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; fill: var(--accent-yellow); }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0.3); opacity: 0.2; } 40% { transform: scale(1.2); opacity: 1; } }
+
+        /* SADE METİN ALANI (Kod renklendirme yok) */
+        .markdown-content pre { 
+            background: #1f2937; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            overflow-x: auto; 
+            margin: 0.5rem 0; 
+            border: 1px solid #374151; 
+        }
+        .markdown-content code { color: #FCD34D; font-size: 0.9em; }
+
+        .markdown-content {
+            white-space: pre-wrap; /* Satır sonlarını korur */
+            word-break: break-word;
+        }
 
         .futu-text { font-family: 'Space Mono', monospace; letter-spacing: 0.1em; }
     </style>
 </head>
 <body class="text-gray-100 h-screen flex flex-col overflow-hidden sidebar-closed">
 
-    <!-- Dinamik Likit Arka Plan -->
-    <div class="liquid-bg">
-        <div class="blob" style="top: -15%; left: -10%;"></div>
-        <div class="blob" style="bottom: -15%; right: -5%; animation-delay: -10s; background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, rgba(147, 51, 234, 0.02) 100%);"></div>
-        <div class="blob" style="top: 35%; left: 25%; width: 600px; height: 600px; animation-duration: 50s; opacity: 0.4;"></div>
-    </div>
-
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden opacity-0 transition-opacity duration-500"></div>
 
-    <!-- 1. GİRİŞ EKRANI -->
+    <!-- GİRİŞ EKRANI -->
     <div id="login-screen" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/80 p-4 transition-all duration-1000">
         <div class="w-full max-w-md glass-panel p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden text-center">
             <div class="absolute -top-32 -left-32 w-80 h-80 bg-yellow-500/5 blur-[120px] rounded-full"></div>
@@ -158,79 +174,77 @@
                     <button id="register-btn" class="flex-1 glass-panel font-bold py-5 rounded-2xl text-gray-300 border-white/10">Kayıt</button>
                 </div>
                 <button id="google-login-btn" class="w-full flex items-center justify-center gap-4 bg-white text-black py-5 rounded-2xl font-bold hover:bg-gray-100 active:scale-95 shadow-2xl transition-all">
-                    <i class="fab fa-google text-red-500 text-xl"></i> Google Authentication
+                    <i class="fab fa-google text-red-500 text-xl"></i> Google ile Giriş
                 </button>
             </div>
-            <p id="login-error" class="hidden text-red-400 text-xs mt-8 font-medium p-4 bg-red-500/5 rounded-2xl border border-red-500/10"></p>
+            <p id="login-error" class="hidden text-red-400 text-xs mt-6 font-bold p-3 bg-red-500/10 rounded-xl"></p>
         </div>
     </div>
 
-    <!-- 2. ANA UYGULAMA -->
-    <div id="app-interface" class="flex-1 flex overflow-hidden hidden opacity-0 transition-opacity duration-1000">
+    <!-- ANA UYGULAMA -->
+    <div id="app-interface" class="flex-1 flex overflow-hidden hidden opacity-0 transition-opacity duration-500">
         
         <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 md:w-80 flex flex-col bg-white/[0.005] backdrop-blur-[60px] border-r border-white/5 h-full z-50">
             <div class="p-8">
-                <button id="new-chat-btn" class="flex items-center justify-center gap-3 w-full py-5 rounded-[2rem] glass-panel border-white/10 text-yellow-500 font-bold text-sm active:scale-95 transition-all futu-text">
-                    <i class="fas fa-edit"></i> Yeni Sohbet
+                <button id="new-chat-btn" class="flex items-center justify-center gap-3 w-full py-4 rounded-2xl border border-gray-700 text-yellow-500 font-bold text-sm hover:bg-gray-800 active:scale-95 transition-all futu-text">
+                    <i class="fas fa-plus"></i> Yeni Sohbet
                 </button>
             </div>
-            <div id="history-list" class="flex-1 overflow-y-auto px-5 pb-6 space-y-2 scrollbar-hide"></div>
-            
-            <div class="p-8 border-t border-white/5 bg-black/5 flex items-center justify-between">
-                <div class="flex items-center gap-4 overflow-hidden">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-black font-black shadow-lg" id="user-initial">?</div>
-                    <div class="overflow-hidden text-left">
-                        <div id="user-display" class="text-xs font-bold truncate text-white">...</div>
-                        <div class="text-[9px] text-green-400 font-black uppercase tracking-tighter opacity-60 futu-text">Çevrimiçi</div>
+            <div id="history-list" class="flex-1 overflow-y-auto px-4 pb-4 space-y-1 scrollbar-hide"></div>
+            <div class="p-5 border-t border-gray-800 bg-gray-900/50 flex items-center justify-between">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center text-gray-900 font-bold" id="user-initial">?</div>
+                    <div class="overflow-hidden">
+                        <div id="user-display" class="text-[11px] font-bold truncate text-gray-200">...</div>
+                        <div class="text-[9px] text-green-500 font-bold uppercase">Hesabın Korunuyor</div>
                     </div>
                 </div>
-                <button id="logout-btn" class="p-2 text-gray-600 hover:text-red-400 transition-all"><i class="fas fa-power-off"></i></button>
+                <button id="logout-btn" class="p-3 text-gray-500 hover:text-red-400 transition-colors"><i class="fas fa-power-off"></i></button>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col relative min-w-0">
-            <header class="flex items-center justify-between p-6 z-30 bg-black/10 backdrop-blur-md border-b border-white/5">
-                <div class="flex items-center gap-5">
-                    <button id="hamburger-btn" class="md:hidden p-3 -ml-2 text-gray-400 hover:bg-white/5 rounded-2xl transition-colors"><i class="fas fa-bars text-xl"></i></button>
-                    <div class="flex flex-col">
-                        <span class="font-bold text-yellow-500 text-2xl tracking-tighter futu-text">Dandik<span class="text-white opacity-80">GPT</span></span>
-                        <div class="flex items-center gap-1.5 mt-0.5">
-                            <div id="status-dot" class="w-1.5 h-1.5 bg-gray-700 rounded-full"></div>
-                            <span id="status-text" class="text-[9px] text-gray-500 font-black uppercase tracking-widest futu-text">Sistem Hazır</span>
-                        </div>
-                    </div>
-                </div>
+            <header class="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900/50 z-30 backdrop-blur-md">
                 <div class="flex items-center gap-4">
-                    <span class="hidden sm:inline-block text-[8px] text-gray-500 font-black font-mono px-4 py-2 bg-white/5 rounded-xl border border-white/5 tracking-widest futu-text">V0.0.2</span>
+                    <button id="hamburger-btn" class="md:hidden p-2 text-gray-400"><i class="fas fa-bars text-xl"></i></button>
+                    <span class="font-bold text-yellow-500 text-xl tracking-tight">DandikGPT</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div id="status-badge" class="text-[9px] text-gray-500 font-bold uppercase border border-gray-500/20 px-3 py-1.5 rounded-full flex items-center gap-2">
+                        <div id="status-dot" class="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                        <span id="status-text">Bağlanıyor...</span>
+                    </div>
+                    <span class="hidden sm:inline-block text-[9px] text-gray-600 font-mono px-2 py-1 bg-gray-800 rounded-md border border-gray-700">v0.0.2</span>
                 </div>
             </header>
 
-            <div id="chat-container" class="flex-1 overflow-y-auto pt-8 pb-48 scrollbar-hide scroll-smooth">
-                <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center px-10 opacity-30 transition-all duration-700">
-                    <div class="w-28 h-28 glass-panel rounded-full flex items-center justify-center mb-10 shadow-2xl border-white/10">
-                        <i class="fas fa-robot text-6xl text-yellow-500"></i>
+            <div id="chat-container" class="flex-1 overflow-y-auto pt-4 pb-32 scrollbar-hide scroll-smooth">
+                <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center px-6 opacity-40">
+                    <div class="w-20 h-20 bg-gray-800 rounded-3xl flex items-center justify-center mb-6 shadow-2xl border border-gray-700">
+                        <i class="fas fa-robot text-4xl text-yellow-500"></i>
                     </div>
-                    <h1 class="text-3xl font-light text-white mb-4 tracking-tight uppercase futu-text">DandikGPT</h1>
-                    <p class="text-sm text-gray-400 max-w-xs leading-loose">Dandik bir yapay zeka deneyimi. Bugün sana nasıl yardımcı olabilirim?</p>
+                    <h1 class="text-2xl font-bold text-white mb-2">Merhaba!</h1>
+                    <p class="text-sm max-w-[250px]">Lütfen bir sohbet seçin veya aşağıdan mesaj gönderin.</p>
                 </div>
                 
-                <div id="messages-wrapper" class="w-full max-w-2xl mx-auto hidden flex flex-col px-6 gap-6 pb-4"></div>
+                <div id="messages-wrapper" class="w-full max-w-3xl mx-auto hidden pb-4"></div>
                 
-                <div id="loading-indicator" class="hidden w-full max-w-2xl mx-auto px-6 mt-6">
-                    <div class="message-group items-start">
-                        <div class="bubble bubble-bot flex items-center py-4 px-6">
-                            <svg class="w-12 h-6" viewBox="0 0 24 24"><circle class="typing-dot" cx="4" cy="12" r="3"/><circle class="typing-dot" cx="12" cy="12" r="3"/><circle class="typing-dot" cx="20" cy="12" r="3"/></svg>
+                <div id="loading-indicator" class="hidden w-full max-w-3xl mx-auto px-4 py-8">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 shadow-lg"><i class="fas fa-robot text-sm"></i></div>
+                        <div class="flex flex-col gap-1">
+                            <span id="queue-text" class="text-[10px] text-yellow-500 font-bold uppercase">Hazırlanıyor...</span>
+                            <svg class="w-10 h-5" viewBox="0 0 24 24"><circle class="typing-dot" cx="4" cy="12" r="2"/><circle class="typing-dot" cx="12" cy="12" r="2"/><circle class="typing-dot" cx="20" cy="12" r="2"/></svg>
                         </div>
-                        <span id="queue-text" class="text-[8px] text-yellow-500/40 font-black uppercase ml-4 tracking-[0.2em] futu-text">İşleniyor</span>
                     </div>
                 </div>
             </div>
 
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/40 to-transparent pt-24 pb-10 px-4 md:px-12 z-30 pb-safe">
-                <div class="w-full max-w-2xl mx-auto">
+                <div class="w-full max-w-3xl mx-auto">
                     <div class="input-pod relative flex items-center p-3 transition-all duration-500 focus-within:shadow-[0_0_50px_rgba(252,211,77,0.08)]">
                         <div class="flex-1 flex items-end px-4">
-                            <textarea id="prompt-input" rows="1" placeholder="Mesaj gönder..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-56 py-3 scrollbar-hide text-base leading-relaxed placeholder-gray-600 font-light"></textarea>
+                            <textarea id="prompt-input" rows="1" placeholder="Mesaj gönder..." class="w-full bg-transparent text-white border-0 focus:ring-0 resize-none max-h-56 py-3 scrollbar-hide text-base leading-relaxed placeholder-gray-600 font-light outline-none"></textarea>
                         </div>
                         <button id="send-btn" class="w-12 h-12 rounded-full text-yellow-500 disabled:opacity-0 transition-all hover:scale-110 active:scale-90 flex items-center justify-center" disabled>
                             <i class="fas fa-paper-plane text-xl"></i>
@@ -376,7 +390,7 @@
                     if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
                     const btn = document.createElement('button');
                     btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all duration-500 flex items-center gap-4 border border-transparent ${isActive ? 'active-chat' : 'text-gray-500 hover:bg-white/5 hover:text-white'}`;
-                    btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'New Stream'}`;
+                    btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'Yeni İleti'}`;
                     btn.onclick = () => { loadChat(doc.id, data.chatUrl); toggleSidebar(false); };
                     ui.history.appendChild(btn);
                 });
@@ -424,7 +438,7 @@
             addMessage('user', msg);
             await saveToDB(chatId, 'user', msg);
             ui.loader.classList.remove('hidden');
-            ui.queue.innerText = "Syncing";
+            ui.queue.innerText = "Sıraya bağlanılıyor...";
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -441,11 +455,11 @@
                     const chunk = decoder.decode(value, { stream: true });
                     if (chunk.includes("[QUEUE_POS:")) {
                         const pos = chunk.match(/\[QUEUE_POS:(\d+)\]/)[1];
-                        ui.queue.innerText = `Pos: ${pos}`;
+                        ui.queue.innerText = `Sıra: ${pos}`;
                         continue;
                     }
                     if (!botDiv && !chunk.includes("[URL:")) {
-                        ui.queue.innerText = "Synthesizing";
+                        ui.queue.innerText = "Yazıyor...";
                         botDiv = addMessage('bot', '');
                         fullRes = "";
                     }
