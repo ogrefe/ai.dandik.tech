@@ -9,6 +9,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@200;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <style>
         :root {
@@ -129,61 +133,66 @@
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; fill: var(--accent-yellow); }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0.3); opacity: 0.2; } 40% { transform: scale(1.2); opacity: 1; } }
 
-        /* --- CODE BOX STYLES --- */
+        /* --- CHATGPT STYLE CODE BOX --- */
         .code-container {
-            background: rgba(0, 0, 0, 0.4);
+            background: #0d1117;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            margin: 12px 0;
+            border-radius: 8px;
+            margin: 16px 0;
             overflow: hidden;
             font-family: 'Space Mono', monospace;
-            max-width: 100%;
+            width: 100%;
         }
 
         .code-header {
-            background: rgba(255, 255, 255, 0.05);
+            background: #21262d;
             padding: 8px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #8b949e;
+            text-transform: lowercase;
+            font-weight: 600;
         }
 
         .copy-btn {
-            background: rgba(252, 211, 77, 0.1);
-            color: var(--accent-yellow);
-            border: 1px solid rgba(252, 211, 77, 0.2);
+            background: transparent;
+            color: #8b949e;
+            border: none;
             padding: 4px 8px;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 10px;
-            transition: all 0.2s;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
         }
 
-        .copy-btn:hover {
-            background: var(--accent-yellow);
-            color: #000;
-        }
+        .copy-btn:hover { color: #fff; }
 
         .code-content {
             padding: 16px;
             overflow-x: auto;
             font-size: 13px;
-            color: #e2e8f0;
-            white-space: pre;
+            line-height: 1.6;
             display: block;
         }
-
+        
+        /* Highlight.js Override */
+        pre code.hljs { background: transparent !important; padding: 0 !important; }
+        
         .markdown-content pre { 
             background: none !important;
             padding: 0 !important;
             border: none !important;
             margin: 0 !important;
         }
+        
+        .markdown-content p { margin-bottom: 12px; }
+        .markdown-content p:last-child { margin-bottom: 0; }
     </style>
 </head>
 <body class="text-gray-100 h-screen flex flex-col overflow-hidden sidebar-closed">
@@ -282,7 +291,7 @@
                 </div>
             </div>
 
-            <!-- Mesaj Girişi (Instagram Pod) -->
+            <!-- Mesaj Girişi -->
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/40 to-transparent pt-24 pb-10 px-4 md:px-12 z-30 pb-safe">
                 <div class="w-full max-w-2xl mx-auto">
                     <div class="input-pod relative flex items-center p-3 transition-all duration-500 focus-within:shadow-[0_0_50px_rgba(252,211,77,0.08)]">
@@ -376,35 +385,39 @@
             setTimeout(() => { btn.innerHTML = originalText; }, 2000);
         }
 
-        // --- MARKDOWN & CODE BOX PARSER ---
-        function formatMessage(text) {
+        // --- GÜÇLÜ KOD AYRIŞTIRICI ---
+        function parseMessage(text) {
             if (!text) return "";
             
-            // Kod bloklarını yakala (``` ... ```)
-            const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
-            let formatted = text;
+            // Kod bloklarını (```lang ... ```) bul
+            const segments = text.split(/(```[\s\S]*?```)/g);
             
-            formatted = formatted.replace(codeBlockRegex, (match, lang, code) => {
-                const id = Math.random().toString(36).substr(2, 9);
-                return `
-                    <div class="code-container">
-                        <div class="code-header">
-                            <span>${lang || 'Kod'}</span>
-                            <button class="copy-btn" data-id="${id}" onclick="window.copyToClipboard('${id}')">
-                                <i class="far fa-copy"></i> Kopyala
-                            </button>
+            return segments.map(segment => {
+                if (segment.startsWith('```') && segment.endsWith('```')) {
+                    // Kod bloğu tespiti
+                    const match = segment.match(/```(\w*)\n?([\s\S]*?)```/);
+                    if (!match) return escapeHTML(segment);
+                    
+                    const lang = (match[1] || 'plaintext').toLowerCase();
+                    const code = match[2].trim();
+                    const id = Math.random().toString(36).substr(2, 9);
+                    
+                    return `
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span>${lang}</span>
+                                <button class="copy-btn" data-id="${id}" onclick="window.copyToClipboard('${id}')">
+                                    <i class="far fa-copy"></i> Kopyala
+                                </button>
+                            </div>
+                            <pre><code id="code-${id}" class="code-content hljs language-${lang}">${escapeHTML(code)}</code></pre>
                         </div>
-                        <code id="code-${id}" class="code-content">${escapeHTML(code.trim())}</code>
-                    </div>
-                `;
-            });
-
-            // Geri kalan metin için HTML escape ama kod bloklarını koruyarak
-            if (!formatted.includes('<div class="code-container">')) {
-                return escapeHTML(formatted);
-            }
-            
-            return formatted;
+                    `;
+                } else {
+                    // Normal metin tespiti (XSS Korumalı)
+                    return `<p>${escapeHTML(segment).replace(/\n/g, '<br>')}</p>`;
+                }
+            }).join('');
         }
 
         function toggleSidebar(open) {
@@ -475,15 +488,15 @@
             historyUnsub = db.collection('artifacts').doc(appId).collection('users').doc(userId).collection('chats')
                 .orderBy('timestamp', 'desc')
                 .onSnapshot(snap => {
-                    ui.history.innerHTML = '<div class="px-2 py-3 text-[9px] font-black text-gray-700 mt-2 uppercase tracking-[0.3em] mb-4 opacity-40">Arşiv</div>';
+                    ui.history.innerHTML = '<div class="px-2 py-3 text-[9px] font-black text-gray-700 mt-2 uppercase tracking-[0.3em] mb-4 opacity-40">Archive</div>';
                     snap.forEach(doc => {
                         const data = doc.data();
                         const isActive = currentChatId === doc.id;
                         if (isActive && data.chatUrl) activeChatUrl = data.chatUrl;
 
                         const btn = document.createElement('button');
-                        btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all duration-500 flex items-center gap-4 border border-transparent ${isActive ? 'active-chat' : 'text-gray-500 hover:bg-white/5 hover:text-white'}`;
-                        btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'Yeni İleti'}`;
+                        btn.className = `w-full text-left px-5 py-4 rounded-2xl text-xs truncate transition-all duration-500 flex items-center gap-4 border border-transparent ${isActive ? 'active-chat' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`;
+                        btn.innerHTML = `<i class="fas fa-feather opacity-20 text-[10px]"></i> ${data.title || 'New Stream'}`;
                         btn.onclick = () => { loadChat(doc.id, data.chatUrl); toggleSidebar(false); };
                         ui.history.appendChild(btn);
                     });
@@ -516,10 +529,14 @@
             const bubbleDiv = document.createElement('div');
             bubbleDiv.className = `bubble ${isUser ? 'bubble-user' : 'bubble-bot'}`;
             
-            bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug font-normal">${formatMessage(text)}</div>`;
+            // Mesajı ayrıştır ve formatla
+            bubbleDiv.innerHTML = `<div class="markdown-content prose prose-invert text-inherit whitespace-pre-wrap leading-snug font-normal">${parseMessage(text)}</div>`;
             
             groupDiv.appendChild(bubbleDiv);
             ui.messages.appendChild(groupDiv);
+            
+            // Syntax Highlighting Uygula
+            bubbleDiv.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
             
             if (anim) ui.container.scrollTo({ top: ui.container.scrollHeight, behavior: 'smooth' });
             return bubbleDiv.querySelector('.markdown-content');
@@ -528,7 +545,7 @@
         async function handleSend() {
             const msg = ui.input.value.trim();
             if (!msg) return;
-            if (!isBackendOnline) { addMessage('bot', "İletişim motoru şu an Standby modunda."); return; }
+            if (!isBackendOnline) { addMessage('bot', "The engine is in standby."); return; }
 
             const chatId = currentChatId;
             const userId = auth.currentUser.uid;
@@ -539,7 +556,7 @@
             await saveToDB(chatId, 'user', msg);
 
             ui.loader.classList.remove('hidden');
-            ui.queue.innerText = "Bağlanılıyor";
+            ui.queue.innerText = "Engaging";
             ui.container.scrollTo({ top: ui.container.scrollHeight, behavior: 'smooth' });
 
             try {
@@ -561,12 +578,12 @@
 
                     if (chunk.includes("[QUEUE_POS:")) {
                         const pos = chunk.match(/\[QUEUE_POS:(\d+)\]/)[1];
-                        ui.queue.innerText = `Sıra: ${pos}`;
+                        ui.queue.innerText = `Position: ${pos}`;
                         continue;
                     }
 
                     if (!botDiv && !chunk.includes("[URL:")) {
-                        ui.queue.innerText = "Cevaplanıyor";
+                        ui.queue.innerText = "Synthesizing";
                         botDiv = addMessage('bot', '');
                     }
 
@@ -581,17 +598,23 @@
                                 display = fullRes.replace(/\[URL:.*?\]/, '');
                             }
                         }
-                        botDiv.innerHTML = escapeHTML(display);
+                        
+                        // Streaming sırasında ham metin olarak göster (Performans için)
+                        // Bittiğinde parse edilecek
+                        botDiv.innerText = display;
                         ui.container.scrollTo({ top: ui.container.scrollHeight });
                     }
                 }
+                
                 const finalTxt = fullRes.replace(/\[URL:.*?\]/, '');
-                if (finalTxt) {
-                    botDiv.innerHTML = formatMessage(finalTxt);
+                if (finalTxt && botDiv) {
+                    // İşlem bittiğinde zengin formatı (kod kutuları vs.) uygula
+                    botDiv.innerHTML = parseMessage(finalTxt);
+                    botDiv.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));
                     await saveToDB(chatId, 'bot', finalTxt);
                 }
             } catch (err) { 
-                addMessage('bot', "Erişim Hatası: Senkronizasyon kesildi."); 
+                addMessage('bot', "Sync Lost."); 
             } finally { 
                 ui.loader.classList.add('hidden'); ui.send.disabled = false; ui.input.focus();
             }
